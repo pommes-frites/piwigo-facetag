@@ -4,7 +4,7 @@ defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
 define('FACETAG_ID', basename(dirname(__FILE__)));
 define('FACETAG_PATH', PHPWG_PLUGINS_PATH . FACETAG_ID . '/');
 
-class facetag_maintain extends PluginMaintain
+class piwigo-facetag_maintain extends PluginMaintain
 {
 	function install($plugin_version, &$errors=array()) { 
 		run_sql_file(FACETAG_PATH.'install/facetag_structure-mysql.sql');
