@@ -2,10 +2,10 @@
 /*
 Plugin Name: facetag
 Version: 0.0.1
-Description: 
-Plugin URI: 
+Description: This plugin extends piwigo with the function to tag faces in pictures.
+Plugin URI: https://github.com/pommes-frites/piwigo-facetag
 Author: pommes-frites
-Author URI: 
+Author URI: https://github.com/pommes-frites
 */
 
 defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
