@@ -1,0 +1,29 @@
+/* CSS code for your plugin */
+
+.facetag-button {
+  background:url('../img/facetag.png') center center no-repeat !important;
+  min-width:26px;
+  min-height:26px;
+}
+
+.facetag-button:hover, .facetag-button_active {
+  background:url('../img/facetag_active.png') center center no-repeat !important;
+}
+
+.facetag-div{
+    margin:0px;
+    padding:0px;
+}
+.facetag-div:hover, .facetag-div_active{
+    border:2px dashed white;
+}
+
+.facetag-textbox{
+    margin:5px 0px 0px 0px;
+    padding:0px;
+	visibility: hidden;
+}
+
+.facetag-textbox_active{
+	visibility: visible;
+}
