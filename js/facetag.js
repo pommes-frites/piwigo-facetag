@@ -12,6 +12,13 @@ function initImageFaceTags(imageId, listTagsUrl, changeTagUrl) {
 	fetchAllFaceTags(listTagsUrl);
 	
 	ImageFaceTag.fetchAndAppend($("body"));
+
+	// disables drag & drop behavior of browsers (e. g. firefox) while the user wants to tag a face
+	$(document).on("dragstart", function(e) {
+		if (ImageFaceTag.active && e.target.nodeName.toUpperCase() == "IMG" && e.target.id == "theMainImage") {
+			return false;
+		}
+	});
 }
 
 function onFaceTagButtonClicked() {	
@@ -106,5 +113,3 @@ function fetchAllFaceTags(wsUrl) {
 		}
 	});
 }
-
-
