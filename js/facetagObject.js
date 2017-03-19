@@ -99,7 +99,7 @@ ImageFaceTag.prototype._createDiv = function() {
 	
 	div.css({
 		position: 'absolute',
-		zIndex: 5000,
+		zIndex: 1000,
 		top: this.top,
 		left: this.left,
 		width: this.width,
@@ -120,7 +120,7 @@ ImageFaceTag.prototype._createTextBox = function() {
 	
 	textBox.css({
 		position: 'absolute',
-		zIndex: 5000,
+		zIndex: 1000,
 		top: (this.top + this.height),
 		left: this.left
 	});
@@ -257,7 +257,7 @@ ImageFaceTag.prototype.setRelativePosition = function(relTop, relLeft, relWidth,
 ImageFaceTag.prototype.refreshPosition = function() {
 	this.getDiv().css({
 		position: 'absolute',
-		zIndex: 5000,
+		zIndex: 1000,
 		top: this.top,
 		left: this.left,
 		width: this.width,
