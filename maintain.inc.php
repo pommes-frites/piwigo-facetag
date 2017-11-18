@@ -1,41 +1,66 @@
 <?php
+
 defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
 
-define('FACETAG_ID', basename(dirname(__FILE__)));
-define('FACETAG_PATH', PHPWG_PLUGINS_PATH . FACETAG_ID . '/');
 
-function plugin_install($plugin_id, $plugin_version, &$errors) {
-	run_sql_file(FACETAG_PATH.'install/facetag_structure-mysql.sql');
-}
+/**
+ * This class is used to expose maintenance methods to the plugins manager
+ * It must extends PluginMaintain and be named "PLUGINID_maintain"
+ * where PLUGINID is the directory name of your plugin
+ */
+class MugShot_maintain extends PluginMaintain
+{
 
-function run_sql_file($location){
-	//load file
-	$commands = file_get_contents($location);
+  /**
+   * plugin installation
+   *
+   * perform here all needed step for the plugin installation
+   * such as create default config, add database tables,
+   * add fields to existing tables, create local folders...
+   */
+  function install($plugin_version, &$errors=array())
+  {
+    $configQuery = 'INSERT INTO ' . CONFIG_TABLE . ' (param,value,comment) VALUES ("MugShot","","MugShot configuration values");';
 
-	//delete comments
-	$lines = explode("\n",$commands);
-	$commands = '';
-	foreach($lines as $line){
-		$line = trim($line);
-		if( $line && !startsWith($line,'--') ){
-			$commands .= $line . "\n";
-		}
-	}
+    $createTableQuery = 'CREATE TABLE IF NOT EXISTS `face_tag_positions` (
+      `image_id` mediumint(8) unsigned NOT NULL default "0",
+      `tag_id` smallint(5) unsigned NOT NULL default "0",
+      `top` float unsigned NOT NULL default "0",
+      `left` float unsigned NOT NULL default "0",
+      `width` float unsigned NOT NULL default "0",
+      `height` float unsigned NOT NULL default "0",
+      `image_width` float unsigned NOT NULL default "0",
+      `image_height` float unsigned NOT NULL default "0",
+      PRIMARY KEY (`image_id`,`tag_id`)
+    )';
 
-	//convert to array
-	$commands = explode(";", $commands);
+    $deleteTriggerQuery = "DROP TRIGGER IF EXISTS `sync_mug_shot`;";
 
-	//run commands
-	foreach($commands as $command){
-		if(trim($command)){
-			pwg_query($command);
-		}
-	}
-}
+    $makeTriggerQuery = "CREATE TRIGGER `sync_mug_shot`
+      AFTER DELETE ON `piwigo_tags`
+      FOR EACH ROW DELETE FROM face_tag_positions
+      WHERE face_tag_positions.tag_id = old.id";
 
+    pwg_query($configQuery);
+    pwg_query($createTableQuery);
+    pwg_query($deleteTriggerQuery);
+    pwg_query($makeTriggerQuery);
 
-// Here's a startsWith function
-function startsWith($haystack, $needle){
-	$length = strlen($needle);
-	return (substr($haystack, 0, $length) === $needle);
+  }
+
+  function deactivate()
+  {
+    // Do nothing
+  }
+
+  function update($old_version, $new_version, &$errors=array())
+  {
+    // Do nothing
+  }
+
+  function uninstall()
+  {
+    conf_delete_param('MugShot');
+  }
+
 }

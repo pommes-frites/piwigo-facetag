@@ -1,29 +1,21 @@
-/* CSS code for your plugin */
-
-.facetag-button {
-  background:url('../img/facetag.png') center center no-repeat !important;
-  min-width:26px;
-  min-height:26px;
+.mugshot-frame {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  visibility: visible;
+  z-index: 1500;
 }
 
-.facetag-button:hover, .facetag-button_active {
-  background:url('../img/facetag_active.png') center center no-repeat !important;
+.mugshot-frame:hover:not(.mugshot-active) {
+  cursor: pointer;
+  opacity: 0.6;
 }
 
-.facetag-div{
-    margin:0px;
-    padding:0px;
-}
-.facetag-div:hover, .facetag-div_active{
-    border:2px dashed white;
+.mugshot-frame:hover,
+.mugshot-active {
+  border:3px dashed white;
 }
 
-.facetag-textbox{
-    margin:5px 0px 0px 0px;
-    padding:0px;
-	visibility: hidden;
-}
-
-.facetag-textbox_active{
-	visibility: visible;
+.mugshot-active {
+  visibility: visible !important;
 }
