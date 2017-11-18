@@ -54,7 +54,6 @@ var MugShot = {
     this.map = this.img.useMap;
     this.img.useMap = '#';
     this.img.style.cursor = 'crosshair';
-    this.createSubmitButton();
     this.img.addEventListener('mousedown', beginCapture);
     window.addEventListener('keydown', reverseCapture);
   }),
@@ -239,7 +238,7 @@ var MugShot = {
   createTextBox: (function () {
     var name = document.createElement('input');
     var tagName = this.mugs[this.cfi].frame.name;
-    name.addEventListener('keydown', doneWithText);
+    name.addEventListener('keyup', doneWithText);
     name.id = this.mugs[this.cfi].name.id;
     name.value = (tagName) ? tagName : '';
     name.className = 'mugshot-textbox';
@@ -273,6 +272,9 @@ var MugShot = {
   submitMugShots: (function () {
     var data = [];
 
+    this.toggleSubmitBtn('off');
+    this.tagList.style.display = 'none';
+
     if (this.mugs.length != 0) {
 
       data.imageId = this.mugs[0].imageId;
@@ -281,12 +283,12 @@ var MugShot = {
         if (this.mugs[i].frame.tag != '') {
           data['mug_' + i] = this.mugs[i].frame;
         }
+
+        this.toggleElementSet(i, 'off');
       }
 
       this.sendToServer(data);
     }
-
-    this.toggleSubmitBtn('off');
   }),
 
   urlEncodeData: (function (obj, prefix) {
@@ -318,18 +320,14 @@ var MugShot = {
 
   parseFromServer: (function (e) {
     if (e.target.status == 200) {
-      var i = 0;
 
-      for (i = 0; i < MugShot.mugs.length; i++) {
-        MugShot.toggleElementSet(i, 'off');
-      }
-
-      MugShot.toggleSubmitBtn('off');
       MugShot.resetMugShot();
 
       if (e.target.response) {
         console.log(JSON.parse(e.target.response.result));
       }
+    } else {
+      console.log('Error: Unsuccessfully updated Database');
     }
   }),
 
@@ -412,6 +410,8 @@ function reverseCapture(e) {
 
 function doneWithText(e) {
   var index = parseInt(e.target.id.replace('name_', ''));
+  MugShot.mugs[index].frame.name = e.target.value;
+  MugShot.mugs[index].frame.el.title = e.target.value;
 
   if (e.keyCode == 13) {
     MugShot.toggleElementSet(index, 'off');

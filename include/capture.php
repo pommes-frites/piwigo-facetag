@@ -82,6 +82,7 @@ function book_mugshots($data, &$service) {
     $deleteSql1 = "DELETE FROM " . TAGS_TABLE . " WHERE `id` IN " . $dString . ";";
     $deleteSql2 = "DELETE FROM " . IMAGE_TAG_TABLE . " WHERE `tag_id` IN " . $dString . ";";
     $dResult1 = pwg_query($deleteSql1);
+    $dResult2 = pwg_query($deleteSql2);
   } else {
     $dResult1 = true;
     $dResult2 = true;
