@@ -25,7 +25,7 @@ var MugShot = {
   drawMugShots: (function (frames) {
     for (var f in frames) {
       if (frames.hasOwnProperty(f)) {
-        var left = frames[f].left;
+        var left = frames[f].lft;
         var top = frames[f].top;
         var height = frames[f].height;
         var width = frames[f].width;

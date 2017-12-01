@@ -106,7 +106,7 @@ var MugShot = {
   drawMugShots: (function (frames) {
     for (var f in frames) {
       if (frames.hasOwnProperty(f)) {
-        var left = frames[f].left;
+        var left = frames[f].lft;
         var top = frames[f].top;
         var height = frames[f].height;
         var width = frames[f].width;
@@ -263,6 +263,8 @@ var MugShot = {
     var btn = document.createElement('button');
     btn.className = 'mugshot-done-button';
     btn.id = 'mugShotSubmit';
+    this.init(-1);
+    this.refreshCapture();
     btn.style.left = this.img.offsetLeft + 'px';
     btn.onclick = this.submitMugShots.bind(this);
     this.submitBtn = btn;

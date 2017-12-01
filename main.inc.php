@@ -176,7 +176,7 @@ function defined_mugshots( $id ) {
     mst.image_id,
     mst.tag_id,
     mst.top,
-    mst.left,
+    mst.lft,
     mst.width,
     mst.height,
     mst.image_width,

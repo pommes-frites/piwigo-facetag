@@ -26,7 +26,7 @@ class MugShot_maintain extends PluginMaintain
       `image_id` mediumint(8) unsigned NOT NULL default "0",
       `tag_id` smallint(5) unsigned NOT NULL default "0",
       `top` float unsigned NOT NULL default "0",
-      `left` float unsigned NOT NULL default "0",
+      `lft` float unsigned NOT NULL default "0",
       `width` float unsigned NOT NULL default "0",
       `height` float unsigned NOT NULL default "0",
       `image_width` float unsigned NOT NULL default "0",

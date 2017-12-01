@@ -63,9 +63,9 @@ function book_mugshots($data, &$service) {
   // Add new mugshot
   if ($varString !== '') {
     $varString = substr(trim($varString), 0, -1);
-    $frameSql = "INSERT INTO " . MUGSHOT_TABLE . " (`tag_id`, `image_id`, `top`, `left`, `width`, `height`, `image_width`, `image_height`) ";
+    $frameSql = "INSERT INTO " . MUGSHOT_TABLE . " (`tag_id`, `image_id`, `top`, `lft`, `width`, `height`, `image_width`, `image_height`) ";
     $frameSql .= "VALUES " . $varString . " ON DUPLICATE KEY UPDATE `top`=VALUES(`top`), ";
-    $frameSql .= "`left`=VALUES(`left`), `width`=VALUES(`width`), `height`=VALUES(`height`), ";
+    $frameSql .= "`lft`=VALUES(`lft`), `width`=VALUES(`width`), `height`=VALUES(`height`), ";
     $frameSql .= "`image_width`=VALUES(`image_width`), `image_height`=VALUES(`image_height`);";
     $tagSql = substr(trim($tagSql), 0, -1);
     $tagSql = "INSERT IGNORE INTO " . IMAGE_TAG_TABLE . " (`image_id`, `tag_id`) VALUES " . $tagSql . ';';
