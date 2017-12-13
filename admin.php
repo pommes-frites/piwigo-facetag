@@ -62,6 +62,8 @@ $template -> assign_var_from_handle('ADMIN_CONTENT', 'plugin_admin_content');
  * Update the parameters and escape the serialized string.
  */
 if(isset($_POST['save'])) {
+	unset($_POST['save']);
+	$plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
 	conf_update_param(MUGSHOT_ID, pwg_db_real_escape_string(serialize($_POST)));
 }
 

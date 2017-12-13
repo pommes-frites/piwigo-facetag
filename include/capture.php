@@ -14,7 +14,15 @@ function add_mugshot_methods($arr) {
   );
 }
 
-
+function dir_is_empty($dir) {
+  $handle = opendir($dir);
+  while (false !== ($entry = readdir($handle))) {
+    if ($entry != "." && $entry != "..") {
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
 
 
 function book_mugshots($data, &$service) {
@@ -23,8 +31,16 @@ function book_mugshots($data, &$service) {
     return new PwgError(405, "HTTP POST REQUIRED");
   }
 
-
   $imageId = pwg_db_real_escape_string($data['imageId']);
+  $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
+
+  if ($plugin_config['autotag']) {
+    $sql = "SELECT * FROM `". IMAGES_TABLE . "` WHERE `id`=".$imageId.";";
+    $imgData = pwg_db_fetch_assoc(pwg_query($sql));
+    $imgFilePath = $imgData['path'];
+    $imgFileName = $imgData['file'];
+  }
+
   unset($data['imageId']);
   $tagSql = '';
   $varString = '';
@@ -41,11 +57,56 @@ function book_mugshots($data, &$service) {
     $imageHeight = pwg_db_real_escape_string($value['imageHeight']);
     $rm = pwg_db_real_escape_string($value['removeThis']);
 
+    if($plugin_config['autotag']) {
+      if($rm === '0' && $width >= 40 && $height >= 40 && extension_loaded('imagick') === true) {
+        try {
+          $image = new Imagick($imgFilePath);
+          $image -> resizeImage($imageWidth, $imageHeight, Imagick::FILTER_LANCZOS,1);
+          $image -> cropImage($width, $height, $left, $top);
+          $struc = str_replace(' ', '_', strtolower($name));
+          $structure = getcwd()."/plugins/MugShot/training/".$struc;
+
+          if (!file_exists($structure)) {
+            mkdir($structure, 0775, true);
+          }
+
+          if (!file_exists($structure.'/'.$imgFileName)) {
+            $image -> writeImage($structure.'/'.$imgFileName);
+            chmod($structure, 0760);
+          }
+
+        } catch (Exception $e) {
+          // return json_encode($e->getMessage());
+        }
+      }
+
+      if($rm == 1) {
+        try {
+          $struc = str_replace(' ', '_', strtolower($name));
+          $structure = getcwd()."/plugins/MugShot/training/".$struc;
+          $remTest = false;
+          $dirTest = false;
+
+          if (file_exists($structure.'/'.$imgFileName)) {
+            $remTest = unlink($structure.'/'.$imgFileName);
+          }
+
+          if (dir_is_empty($structure)) {
+            $dirTest = rmdir($structure);
+          }
+
+        } catch (Exception $e) {
+          return json_encode($e->getMessage());
+        }
+      }
+    }
+
     // Remove a mugshot
     if ($rm == 1) {
       $dString .= ($tag != '') ? $tag . ',' : '';
       continue;
     }
+
 
     // Update a mugshot
     if ($tag == -1 && $name != '') {
@@ -79,7 +140,7 @@ function book_mugshots($data, &$service) {
   // Delete mugshot
   if ($dString !== '') {
     $dString = '(' . substr(trim($dString), 0, -1) . ')';
-    $deleteSql1 = "DELETE FROM " . TAGS_TABLE . " WHERE `id` IN " . $dString . ";";
+    $deleteSql1 = "DELETE FROM `face_tag_positions` WHERE `tag_id` IN " . $dString . " AND `image_id`=".$imageId.";";
     $deleteSql2 = "DELETE FROM " . IMAGE_TAG_TABLE . " WHERE `tag_id` IN " . $dString . ";";
     $dResult1 = pwg_query($deleteSql1);
     $dResult2 = pwg_query($deleteSql2);

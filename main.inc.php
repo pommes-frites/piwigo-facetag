@@ -50,12 +50,20 @@ if (is_array($current_user_groups) && count($intersect) != 0) {
 
   // Retrieve the current user theme
   $query = 'SELECT theme FROM ' . USER_INFOS_TABLE . ';';
-  $theme = pwg_db_fetch_assoc(pwg_query($query))['theme'];
+  $theme = strtolower(pwg_db_fetch_assoc(pwg_query($query))['theme']);
 
-  if (strpos($theme, 'bootstrap') !== false) {
-    define('BOOT', true);
-  } else {
-    define('BOOT', false);
+  switch ($theme) {
+    case 'bootstrap_darkroom':
+      define('BOOT', 1);
+      break;
+
+    case 'bootstrapdefault':
+      define('BOOT', 1);
+      break;
+
+    default:
+      define('BOOT', 0);
+      break;
   }
 
   define('MUGSHOT_USER_ADMIN', true);

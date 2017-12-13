@@ -1,6 +1,10 @@
 var MugShot = {
   id: 'theMainImage',
 
+  id2: 'MugShotDiv',
+
+  id3: 'theImage',
+
   imageId: false,
 
   postAction: false,
@@ -26,41 +30,69 @@ var MugShot = {
   selecting: false,
 
   init: (function (f, imageId, action) {
-    this.img = document.getElementById(this.id);
-    this.offset = this.img.getBoundingClientRect();
-
-    if (f !== -1) {
-      var derivatives = document.querySelectorAll('[id^="derivative"]');
-      [].forEach.call(derivatives, refreshOnResize);
-      this.imageId = imageId;
-      this.drawMugShots(f);
-      this.createSubmitButton();
-      this.assignEventListeners();
-      this.active = true;
-      this.postAction = action;
-      this.tagList = document.getElementById('mugshot-tags');
-      document.getElementById('mugshot-tags').remove();
-      this.img.parentNode.append(this.tagList);
-      this.img.parentNode.style.overflow = 'visible';
-    } else {
-      this.imageId = (this.imageId) ? this.imageId : imageId;
-      this.postAction = (this.postAction) ? this.postAction : action;
-    }
+    this.refreshImgData();
+    this.makeWrapper();
+    this.imageId = imageId;
+    this.drawMugShots(f);
+    this.createSubmitButton();
+    this.assignEventListeners();
+    this.postAction = action;
+    this.tagList = document.getElementById('mugshot-tags');
+    document.getElementById('mugshot-tags').remove();
+    document.getElementById(this.id2).append(this.tagList);
+    this.imageId = imageId;
+    this.postAction = action;
   }),
 
   frame: (function () {
-    this.active = true;
-    this.img.draggable = false;
-    this.map = this.img.useMap;
-    this.img.useMap = '#';
-    this.img.style.cursor = 'crosshair';
-    this.img.addEventListener('mousedown', beginCapture);
-    window.addEventListener('keydown', reverseCapture);
+    if (this.active === false) {
+      this.refreshImgData()
+      this.active = true;
+      this.img.draggable = false;
+      this.map = this.img.useMap;
+      this.img.useMap = '#';
+      this.img.style.cursor = 'crosshair';
+      this.img.addEventListener('mousedown', beginCapture);
+      window.addEventListener('keydown', reverseCapture);
+    }
+  }),
+
+  makeWrapper: (function () {
+    var w = document.createElement('div');
+    w.id = this.id2;
+    w.style.left = this.offset.left - this.poffset.left + 'px';
+    w.style.width = this.offset.width + 'px';
+    w.style.height = this.offset.height + 'px';
+    document.getElementById('theImage').append(w)
+  }),
+
+  updateWrapper: (function () {
+    var w = document.getElementById(this.id2)
+    w.style.left = this.offset.left - this.poffset.left + 'px';
+    w.style.top = '0px';
+    w.style.width = this.offset.width + 'px';
+    w.style.height = this.offset.height + 'px';
   }),
 
   assignEventListeners: (function () {
+    try {
+      document.getElementById('navbar-contextual').addEventListener('click', refreshOnResize);
+    } catch (err) {
+      if (err.name == 'TypeError') {
+        try {
+          document.querySelector('nav').addEventListener('click', refreshOnResize);
+        } catch(err) {
+          if (err.name == 'TypeError') {
+            document.getElementById('imageToolBar').addEventListener('click', refreshOnResize);
+          } else {
+            console.log(err);
+          }
+        }
+      } else {
+        console.log(err);
+      }
+    }
     window.addEventListener('resize', refreshOnResize);
-    window.addEventListener('scroll', refreshOnResize);
   }),
 
   toggleElementSet: (function (i, x) {
@@ -137,7 +169,8 @@ var MugShot = {
     box.style.left = left + 'px';
     box.style.height = height + 'px';
     box.style.width = width + 'px';
-    this.img.parentNode.append(box);
+    document.getElementById(this.id2).append(box);
+
     this.mugs[this.cfi] = {
         imageId: this.imageId,
         active: true,
@@ -191,7 +224,7 @@ var MugShot = {
   refreshBoundingBoxPosition: (function (left, top, height, width, index) {
     index = (index !== false) ? index : this.cfi;
     this.mugs[index].frame.el.style.top = top + 'px';
-    this.mugs[index].frame.el.style.left = left  + 'px';
+    this.mugs[index].frame.el.style.left = left + 'px';
     this.mugs[index].frame.el.style.height = height + 'px';
     this.mugs[index].frame.el.style.width = width + 'px';
   }),
@@ -209,42 +242,44 @@ var MugShot = {
 
   refreshCapture: (function () {
     if (this.cfi !== -1) {
-      if (this.active) {
-        this.submitBtn.style.left = this.img.offsetLeft + 'px';
-      }
 
       var len = this.mugs.length;
 
       for (var i = 0; i < len; i++) {
-        var name = document.getElementById('name_' + i);
-        var frame = document.getElementById('frame_' + i);
         var scaleX = this.img.width / this.mugs[i].frame.imageWidth;
         var scaleY = this.img.height / this.mugs[i].frame.imageHeight;
 
-        var left = parseInt(this.img.offsetLeft + this.mugs[i].frame.left * scaleX);
-        var top = parseInt(this.img.offsetTop + this.mugs[i].frame.top * scaleY);
-        var width = parseInt(this.mugs[i].frame.width * scaleX);
-        var height = parseInt(this.mugs[i].frame.height * scaleY);
-
-        this.refreshBoundingBoxPosition(left, top, height, width, i);
-        this.mugs[i].name.el.style.left = left + 'px';
-        this.mugs[i].name.el.style.top = top + height + 'px';
+        if (scaleX != 1) {
+          var mug = this.mugs[i].frame;
+          var left = Math.floor(parseInt(mug.left) * scaleX);
+          var top = Math.floor(parseInt(mug.top) * scaleY);
+          var width = Math.floor(parseInt(mug.width) * scaleX);
+          var height = Math.floor(parseInt(mug.height) * scaleY);
+          this.refreshBoundingBoxPosition(left, top, height, width, i);
+          this.mugs[i].name.el.style.left = this.mugs[i].frame.el.style.left;
+          this.mugs[i].name.el.style.top = top + height + 'px';
+        }
       }
-
-      this.refreshTagListPosition(true);
     }
   }),
 
+  refreshImgData: (function () {
+    this.img = document.getElementById(this.id);
+    this.offset = this.img.getBoundingClientRect();
+    this.poffset = document.getElementById(this.id3).getBoundingClientRect();
+  }),
+
   createTextBox: (function () {
+    var mug = this.mugs[this.cfi].frame;
     var name = document.createElement('input');
-    var tagName = this.mugs[this.cfi].frame.name;
+    var tagName = mug.name;
     name.addEventListener('keyup', doneWithText);
     name.id = this.mugs[this.cfi].name.id;
     name.value = (tagName) ? tagName : '';
     name.className = 'mugshot-textbox';
-    name.style.top = this.mugs[this.cfi].name.top + 'px';
-    name.style.left = this.mugs[this.cfi].name.left + 'px';
-    this.img.parentNode.append(name);
+    name.style.top = parseInt(mug.top) + parseInt(mug.height) + 'px';
+    name.style.left = mug.el.style.left;
+    document.getElementById(this.id2).append(name);
     this.mugs[this.cfi].name.el = name;
     this.mugs[this.cfi].frame.el.title = name.value;
   }),
@@ -263,12 +298,11 @@ var MugShot = {
     var btn = document.createElement('button');
     btn.className = 'mugshot-done-button';
     btn.id = 'mugShotSubmit';
-    this.init(-1);
-    this.refreshCapture();
-    btn.style.left = this.img.offsetLeft + 'px';
+    btn.style.left = '0px';
+    btn.style.top = '0px';
     btn.onclick = this.submitMugShots.bind(this);
     this.submitBtn = btn;
-    this.img.parentNode.append(btn);
+    document.getElementById(this.id2).append(btn);
   }),
 
   submitMugShots: (function () {
@@ -286,6 +320,7 @@ var MugShot = {
           data['mug_' + i] = this.mugs[i].frame;
         }
 
+        this.mugs[i].active = false;
         this.toggleElementSet(i, 'off');
       }
 
@@ -362,7 +397,7 @@ function beginCapture(e) {
     MugShot.selecting = true;
     MugShot.img.addEventListener('mousemove', updateCapture);
     MugShot.img.addEventListener('mouseup', haltCapture);
-    MugShot.createBoundingBox(e.pageX, e.pageY - MugShot.offset.top, 5, 5);
+    MugShot.createBoundingBox(e.pageX - MugShot.offset.left, e.pageY - MugShot.offset.top, 5, 5);
     MugShot.mugs[MugShot.cfi].frame.el.classList.toggle('mugshot-active');
     MugShot.toggleSubmitBtn('on');
   }
@@ -370,7 +405,7 @@ function beginCapture(e) {
 
 function updateCapture(e) {
   if (MugShot.selecting) {
-    var pos = MugShot.setBoundingBoxPosition(e.pageX, e.pageY - MugShot.offset.top);
+    var pos = MugShot.setBoundingBoxPosition(e.pageX - MugShot.offset.left, e.pageY - MugShot.offset.top);
     MugShot.refreshBoundingBoxPosition(pos[0], pos[1], pos[2], pos[3], false);
   }
 }
@@ -381,8 +416,8 @@ function haltCapture(e) {
   MugShot.img.removeEventListener('mouseup', haltCapture, false);
   MugShot.mugs[MugShot.cfi].frame.el.ondblclick = updateBoundingBox;
   MugShot.mugs[MugShot.cfi].frame.el.classList.toggle('mugshot-mousetrap');
-  var pos = MugShot.setBoundingBoxPosition(e.pageX, e.pageY - MugShot.offset.top);
-  MugShot.mugs[MugShot.cfi].frame.left = pos[0] - MugShot.offset.left;
+  var pos = MugShot.setBoundingBoxPosition(e.pageX - MugShot.offset.left, e.pageY - MugShot.offset.top);
+  MugShot.mugs[MugShot.cfi].frame.left = pos[0];
   MugShot.mugs[MugShot.cfi].frame.top = pos[1];
   MugShot.mugs[MugShot.cfi].frame.height = pos[2];
   MugShot.mugs[MugShot.cfi].frame.width = pos[3];
@@ -446,15 +481,16 @@ function doneWithText(e) {
 }
 
 function refreshOnResize(e) {
-  if (e.type == 'resize') {
-    MugShot.refreshCapture();
-  } else if (e.type == 'scroll') {
-    MugShot.init(-1);
-    MugShot.refreshCapture();
-  }else {
-    MugShot.img.onload = function () {
-      MugShot.init(-1);
+
+  if(e.type == 'click') {
+    setTimeout(function () {
+      MugShot.refreshImgData();
+      MugShot.updateWrapper();
       MugShot.refreshCapture();
-    };
+    }, 250);
+  } else {
+      MugShot.refreshImgData();
+      MugShot.updateWrapper();
+      MugShot.refreshCapture();
   }
 }

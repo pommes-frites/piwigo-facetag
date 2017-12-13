@@ -26,3 +26,4 @@ $lang['Configuration'] = 'Configuration';
 $lang['Save'] = 'Save';
 $lang['Groups'] = 'Groups';
 $lang['Comma,Separated,Group,List'] = 'Comma,Separated,Group,List';
+$lang['Crop faces for auto tagging*'] = 'Crop faces for auto tagging*';

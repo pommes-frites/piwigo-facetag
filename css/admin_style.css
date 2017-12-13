@@ -30,6 +30,7 @@
 }
 
 .mugshot-frame {
+  pointer-events: auto;
   margin: 0;
   padding: 0;
   position: absolute;
@@ -67,6 +68,7 @@
   margin: 5px 0 0 0;
   max-width: 150px;
   padding: 0 0 0 6px;
+  pointer-events: auto;
   position: absolute;
   visibility: hidden;
 }
@@ -80,6 +82,7 @@
   font-size: 16px;
   font-weight: bold;
   padding: 15px 32px;
+  pointer-events: auto;
   position: absolute;
   text-align: center;
   text-decoration: none;
@@ -118,6 +121,7 @@
   list-style-type: none;
   margin-top: 3px;
   padding: 6px 6px;
+  pointer-events: auto;
   position: absolute;
   z-index: 1500;
 }
@@ -136,4 +140,17 @@
 
 .mugshot-tag-list-show {
   display: block !important;
+}
+
+#MugShotDiv {
+  /*border: 1px solid red;*/
+  display: inline-block;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+}
+
+#theImage {
+  overflow: hidden;
+  position: relative;
 }
