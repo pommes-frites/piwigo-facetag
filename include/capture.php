@@ -47,21 +47,22 @@ function auto_rotate_image($image) {
 }
 
 // Crop faces in the image
-function crop_image_faces($p, $iw, $ih, $width, $height, $left, $top) {
+function crop_image_faces($p, $iw, $ih, $width, $height, $left, $top, $name, $prefix, $imgFN) {
+
   try {
     $image = new Imagick($p);
     auto_rotate_image($image);
     $image -> resizeImage($iw, $ih, Imagick::FILTER_LANCZOS,1);
     $image -> cropImage($width, $height, $left, $top);
-    $struc = str_replace(' ', '_', strtolower($name));
+    $struc = strtolower(str_replace(' ', '_', $name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
 
     if (!file_exists($structure)) {
       mkdir($structure, 0775, true);
     }
 
-    if (!file_exists($structure.'/'.$imgFileName)) {
-      $image -> writeImage($structure.'/'.$imgFileName);
+    if (!file_exists($structure.'/'.$prefix.$imgFN)) {
+      $image -> writeImage($structure.'/'.$prefix.$imgFN);
       chmod($structure, 0760);
     }
 
@@ -71,15 +72,15 @@ function crop_image_faces($p, $iw, $ih, $width, $height, $left, $top) {
 }
 
 // Delete image face if the tag is deleted
-function delete_image_faces($name, $imgFileName) {
+function delete_image_faces($name, $imgFN, $prefix) {
   try {
-    $struc = str_replace(' ', '_', strtolower($name));
+    $struc = strtolower(str_replace(' ', '_', $name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
     $remTest = false;
     $dirTest = false;
 
-    if (file_exists($structure.'/'.$imgFileName)) {
-      $remTest = unlink($structure.'/'.$imgFileName);
+    if (file_exists($structure.'/'.$prefix.$imgFN)) {
+      $remTest = unlink($structure.'/'.$prefix.$imgFN);
     }
 
     if (dir_is_empty($structure)) {
@@ -105,7 +106,7 @@ function book_mugshots($data, &$service) {
     $sql = "SELECT * FROM `". IMAGES_TABLE . "` WHERE `id`=".$imageId.";";
     $imgData = pwg_db_fetch_assoc(pwg_query($sql));
     $imgFP = $imgData['path'];
-    $imgFileName = $imgData['file'];
+    $imgFN = $imgData['file'];
   }
 
   unset($data['imageId']);
@@ -126,12 +127,14 @@ function book_mugshots($data, &$service) {
 
     // Remove or add cropped faces in the images to a directory.
     if($plugin_config['autotag']) {
+      $prefix = 'tag_'.$tag.'_img_'.$imageId.'_';
+
       if($rm === '0' && $width >= 40 && $height >= 40 && extension_loaded('imagick') === true) {
-        return crop_image_faces($imgFP, $imgW, $imgH, $width, $height, $left, $top);
+        return crop_image_faces($imgFP, $imgW, $imgH, $width, $height, $left, $top, $name, $prefix, $imgFN);
       }
 
       if($rm == 1) {
-        delete_image_faces($name, $imgFileName);
+        delete_image_faces($name, $imgFN, $prefix);
       }
     }
 
