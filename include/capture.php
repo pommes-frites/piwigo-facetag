@@ -56,9 +56,11 @@ function crop_image_faces($p, $iw, $ih, $width, $height, $left, $top, $name, $pr
     $image -> cropImage($width, $height, $left, $top);
     $struc = strtolower(str_replace(' ', '_', $name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
+    $indexFile = getcwd()."/plugins/MugShot/training/index.php";
 
     if (!file_exists($structure)) {
       mkdir($structure, 0775, true);
+      copy($indexFile, $structure."/index.php");
     }
 
     if (!file_exists($structure.'/'.$prefix.$imgFN)) {
@@ -76,15 +78,18 @@ function delete_image_faces($name, $imgFN, $prefix) {
   try {
     $struc = strtolower(str_replace(' ', '_', $name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
-    $remTest = false;
-    $dirTest = false;
 
     if (file_exists($structure.'/'.$prefix.$imgFN)) {
-      $remTest = unlink($structure.'/'.$prefix.$imgFN);
+      unlink($structure.'/'.$prefix.$imgFN);
     }
 
     if (dir_is_empty($structure)) {
-      $dirTest = rmdir($structure);
+      rmdir($structure);
+    } else {
+      if (count(scandir($structure)) == 3 && file_exists($structure."/index.php")) {
+        unlink($structure."/index.php");
+        rmdir($structure);
+      }
     }
 
   } catch (Exception $e) {
