@@ -124,13 +124,15 @@ function book_mugshots($data, &$service) {
     $imgW = pwg_db_real_escape_string($value['imageWidth']);
     $imgH = pwg_db_real_escape_string($value['imageHeight']);
     $rm = pwg_db_real_escape_string($value['removeThis']);
+    $tagName = ($tag == -1 && $name != '') ? tag_id_from_tag_name($name) : $tag;
 
     // Remove or add cropped faces in the images to a directory.
     if($plugin_config['autotag']) {
-      $prefix = 'tag_'.$tag.'_img_'.$imageId.'_';
+      // return json_encode($tag);
+      $prefix = 'tag_'.$tagName.'_img_'.$imageId.'_';
 
       if($rm === '0' && $width >= 40 && $height >= 40 && extension_loaded('imagick') === true) {
-        return crop_image_faces($imgFP, $imgW, $imgH, $width, $height, $left, $top, $name, $prefix, $imgFN);
+        crop_image_faces($imgFP, $imgW, $imgH, $width, $height, $left, $top, $name, $prefix, $imgFN);
       }
 
       if($rm == 1) {
@@ -147,7 +149,6 @@ function book_mugshots($data, &$service) {
 
     // Update a mugshot
     if ($tag == -1 && $name != '') {
-      $tagName = tag_id_from_tag_name($name);
       $varString .= "('" . $tagName . "','" . $imageId . "','" . $top . "','" . $left . "','";
       $varString .= $width . "','" . $height . "','" . $imgW . "','" . $imgH . "'),";
       $tagSql .= "('" . $imageId . "','" . $tagName . "'),";
