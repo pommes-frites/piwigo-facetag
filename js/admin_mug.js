@@ -30,6 +30,7 @@ var MugShot = {
   selecting: false,
 
   init: (function (f, imageId, action) {
+    console.log(f)
     this.refreshImgData();
     this.makeWrapper();
     this.imageId = imageId;

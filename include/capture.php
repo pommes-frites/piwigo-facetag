@@ -14,89 +14,6 @@ function add_mugshot_methods($arr) {
   );
 }
 
-// Check if the directory is empty
-function dir_is_empty($dir) {
-  $handle = opendir($dir);
-  while (false !== ($entry = readdir($handle))) {
-    if ($entry != "." && $entry != "..") {
-      return FALSE;
-    }
-  }
-  return TRUE;
-}
-
-// Automatically rotate the image before cropping
-function auto_rotate_image($image) {
-  $o = $image->getImageOrientation();
-
-  switch ($o) {
-    case 3:
-      $image->rotateImage('#000', 180);
-      break;
-
-    case 6:
-      $image->rotateImage('#000', 90);
-      break;
-
-    case 8:
-      $image->rotateImage('#000', -90);
-      break;
-  }
-
-  $image->setImageOrientation(imagick::ORIENTATION_TOPLEFT);
-}
-
-// Crop faces in the image
-function crop_image_faces($p, $iw, $ih, $width, $height, $left, $top, $name, $prefix, $imgFN) {
-
-  try {
-    $image = new Imagick($p);
-    auto_rotate_image($image);
-    $image -> resizeImage($iw, $ih, Imagick::FILTER_LANCZOS,1);
-    $image -> cropImage($width, $height, $left, $top);
-    $struc = strtolower(str_replace(' ', '_', $name));
-    $structure = getcwd()."/plugins/MugShot/training/".$struc;
-    $indexFile = getcwd()."/plugins/MugShot/training/index.php";
-
-    if (!file_exists($structure)) {
-      mkdir($structure, 0775, true);
-      copy($indexFile, $structure."/index.php");
-    }
-
-    if (!file_exists($structure.'/'.$prefix.$imgFN)) {
-      $image -> writeImage($structure.'/'.$prefix.$imgFN);
-      chmod($structure, 0760);
-    }
-
-  } catch (Exception $e) {
-    error_log($e->getMessage(), 0);
-  }
-}
-
-// Delete image face if the tag is deleted
-function delete_image_faces($name, $imgFN, $prefix) {
-  try {
-    $struc = strtolower(str_replace(' ', '_', $name));
-    $structure = getcwd()."/plugins/MugShot/training/".$struc;
-
-    if (file_exists($structure.'/'.$prefix.$imgFN)) {
-      unlink($structure.'/'.$prefix.$imgFN);
-    }
-
-    if (dir_is_empty($structure)) {
-      rmdir($structure);
-    } else {
-      if (count(scandir($structure)) == 3 && file_exists($structure."/index.php")) {
-        unlink($structure."/index.php");
-        rmdir($structure);
-      }
-    }
-
-  } catch (Exception $e) {
-    error_log($e->getMessage(), 0);
-  }
-}
-
 // Add the posted mugshots to the database
 function book_mugshots($data, &$service) {
 
@@ -106,13 +23,6 @@ function book_mugshots($data, &$service) {
 
   $imageId = pwg_db_real_escape_string($data['imageId']);
   $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
-
-  if ($plugin_config['autotag']) {
-    $sql = "SELECT * FROM `". IMAGES_TABLE . "` WHERE `id`=".$imageId.";";
-    $imgData = pwg_db_fetch_assoc(pwg_query($sql));
-    $imgFP = $imgData['path'];
-    $imgFN = $imgData['file'];
-  }
 
   unset($data['imageId']);
   $tagSql = '';
@@ -131,26 +41,11 @@ function book_mugshots($data, &$service) {
     $rm = pwg_db_real_escape_string($value['removeThis']);
     $tagName = ($tag == -1 && $name != '') ? tag_id_from_tag_name($name) : $tag;
 
-    // Remove or add cropped faces in the images to a directory.
-    if($plugin_config['autotag']) {
-      // return json_encode($tag);
-      $prefix = 'tag_'.$tagName.'_img_'.$imageId.'_';
-
-      if($rm === '0' && $width >= 40 && $height >= 40 && extension_loaded('imagick') === true) {
-        crop_image_faces($imgFP, $imgW, $imgH, $width, $height, $left, $top, $name, $prefix, $imgFN);
-      }
-
-      if($rm == 1) {
-        delete_image_faces($name, $imgFN, $prefix);
-      }
-    }
-
     // Remove a mugshot
     if ($rm == 1) {
       $dString .= ($tag != '') ? $tag . ',' : '';
       continue;
     }
-
 
     // Update a mugshot
     if ($tag == -1 && $name != '') {

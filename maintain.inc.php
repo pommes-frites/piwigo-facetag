@@ -45,11 +45,6 @@ class MugShot_maintain extends PluginMaintain
     pwg_query($createTableQuery);
     pwg_query($deleteTriggerQuery);
     pwg_query($makeTriggerQuery);
-
-    $src = getcwd()."/plugins/index.php";
-    $dst = getcwd()."/plugins/MugShot/training/index.php";
-    copy($src, $dst);
-
   }
 
   function deactivate()
@@ -59,9 +54,7 @@ class MugShot_maintain extends PluginMaintain
 
   function update($old_version, $new_version, &$errors=array())
   {
-    $src = getcwd()."/plugins/index.php";
-    $dst = getcwd()."/plugins/MugShot/training/index.php";
-    copy($src, $dst);
+    // Do nothing
   }
 
   function uninstall()

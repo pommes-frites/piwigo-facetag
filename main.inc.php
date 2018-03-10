@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Mug Shot
-Version: 1.1.1
+Version: 1.2
 Description: Improved face tagging for Piwigo
-Plugin URI: auto
+Plugin URI: http://piwigo.org/ext/extension_view.php?eid=867
 Author: cccraig
 */
 
@@ -16,7 +16,7 @@ if (!defined('PHPWG_ROOT_PATH')) die('Hacking attempt!');
 define('MUGSHOT_ID',      basename(dirname(__FILE__)));
 define('MUGSHOT_PATH' ,   PHPWG_PLUGINS_PATH . MUGSHOT_ID . '/');
 define('MUGSHOT_ADMIN',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
-define('MUGSHOT_VERSION', '1.1.1');
+define('MUGSHOT_VERSION', '1.2');
 define('MUGSHOT_TABLE', '`face_tag_positions`');
 
 
@@ -39,10 +39,9 @@ add_event_handler('loc_end_picture', 'mugshot_button');
  * Conditional Logic for groups
  */
 $current_user_groups = query_mugshot_groups();
-$plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
-$group_list = explode(',', $plugin_config['group_list']);
-
 if ($current_user_groups != 0) {
+  $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
+  $group_list = $plugin_config['groups'];
   $intersect = array_intersect($group_list, $current_user_groups);
 }
 
@@ -154,12 +153,14 @@ function query_mugshot_groups() {
     return 0;
   }
 
-  $sql = 'SELECT gt.name FROM ' . USER_GROUP_TABLE . ' AS ugt
+  $sql = 'SELECT gt.id FROM ' . USER_GROUP_TABLE . ' AS ugt
     INNER JOIN ' . GROUPS_TABLE . ' AS gt
     ON ugt.group_id=gt.id
     WHERE ugt.user_id=' . $user . ';';
 
-  return fetch_sql($sql, 'name', false);
+  $res = fetch_sql($sql, 'id', false);
+
+  return (count($res) == 0) ? 0 : $res;
 }
 
 
