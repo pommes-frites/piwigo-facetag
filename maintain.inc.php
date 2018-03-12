@@ -37,7 +37,7 @@ class MugShot_maintain extends PluginMaintain
     $deleteTriggerQuery = "DROP TRIGGER IF EXISTS `sync_mug_shot`;";
 
     $makeTriggerQuery = "CREATE TRIGGER `sync_mug_shot`
-      AFTER DELETE ON `piwigo_tags`
+      AFTER DELETE ON ".TAGS_TABLE."
       FOR EACH ROW DELETE FROM face_tag_positions
       WHERE face_tag_positions.tag_id = old.id";
 
