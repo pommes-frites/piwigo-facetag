@@ -25,5 +25,5 @@ $lang['Name that mug!'] = 'Name that mug!';
 $lang['Configuration'] = 'Configuration';
 $lang['Save'] = 'Save';
 $lang['Groups'] = 'Groups';
-$lang['Comma,Separated,Group,List'] = 'Comma,Separated,Group,List';
-$lang['Crop faces for auto tagging*'] = 'Crop faces for auto tagging*';
+$lang['Type in a search term'] = 'Type in a search term';
+$lang['The following groups can use MugShot to tag people'] = 'The following groups can use MugShot to tag people';
