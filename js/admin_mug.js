@@ -136,18 +136,16 @@ var MugShot = {
     }
   }),
 
+  /**
+   * Places mugshot elements on the page in their
+   * corresponding positions
+   * @param  object frames defined_mugshots
+   * @return void
+   */
   drawMugShots: (function (frames) {
-    for (var f in frames) {
-      if (frames.hasOwnProperty(f)) {
-        var left = frames[f].lft;
-        var top = frames[f].top;
-        var height = frames[f].height;
-        var width = frames[f].width;
-        var imgW = frames[f].image_width;
-        var imgH = frames[f].image_height;
-        var name = frames[f].name;
-        var tag = frames[f].tag_id;
-        this.createBoundingBox(left, top, height, width, imgW, imgH, name, tag);
+    for (var frameIndex in frames) {
+      if (frames.hasOwnProperty(frameIndex)) {
+        this.createBoundingBox(frames[frameIndex]);
         this.createTextBox();
         this.createDeleteButton();
         this.mugs[this.cfi].frame.el.ondblclick = updateBoundingBox;
@@ -159,46 +157,58 @@ var MugShot = {
     this.refreshCapture();
   }),
 
-  createBoundingBox: (function (left, top, height, width, imgW, imgH, name, tag) {
+  /**
+   * Create a frame for the mugshot
+   * @param  object frame frame object from defined_mugshots
+   * @return void
+   */
+  createBoundingBox: (function (frame) {
     this.cfi += 1;
     var id = 'frame_' + this.cfi;
     var box = document.createElement('div');
     box.title = id;
     box.id = id;
     box.className = 'mugshot-frame mugshot-mousetrap';
-    box.style.top = top + 'px';
-    box.style.left = left + 'px';
-    box.style.height = height + 'px';
-    box.style.width = width + 'px';
+    box.style.top = frame.top + 'px';
+    box.style.left = frame.lft + 'px';
+    box.style.height = frame.height + 'px';
+    box.style.width = frame.width + 'px';
+    if(frame.name) {
+      var nameEl = document.createElement('a');
+      nameEl.className = 'mugshot-frame-name';
+      nameEl.href = frame.tag_url;
+      nameEl.innerHTML = frame.name;
+      box.append(nameEl);
+    }
     document.getElementById(this.id2).append(box);
 
     this.mugs[this.cfi] = {
-        imageId: this.imageId,
-        active: true,
-        frame: {
-          el: box,
-          id: id,
-          name: (name) ? name : '',
-          top: top,
-          left: left,
-          height: height,
-          width: width,
-          imageWidth: (imgW) ? imgW : this.img.width,
-          imageHeight: (imgH) ? imgH : this.img.height,
-          tagId: (tag) ? tag : -1,
-          removeThis: 0,
-        },
-        name: {
-          el: '',
-          id: 'name_' + this.cfi,
-          left: 0,
-          top: 0,
-        },
-        remove: {
-          el: '',
-          id: 'remove_' + this.cfi,
-        },
-      };
+      imageId: this.imageId,
+      active: true,
+      frame: {
+        el: box,
+        id: id,
+        name: (frame.name) ? frame.name : '',
+        top: frame.top,
+        left: frame.lft,
+        height: frame.height,
+        width: frame.width,
+        imageWidth: (frame.image_width) ? frame.image_width : this.img.width,
+        imageHeight: (frame.image_height) ? frame.image_height : this.img.height,
+        tagId: (frame.tag_id) ? frame.tag_id : -1,
+        removeThis: 0,
+      },
+      name: {
+        el: '',
+        id: 'name_' + this.cfi,
+        left: 0,
+        top: 0,
+      },
+      remove: {
+        el: '',
+        id: 'remove_' + this.cfi,
+      },
+    };
   }),
 
   setBoundingBoxPosition: (function (x, y) {
@@ -398,7 +408,15 @@ function beginCapture(e) {
     MugShot.selecting = true;
     MugShot.img.addEventListener('mousemove', updateCapture);
     MugShot.img.addEventListener('mouseup', haltCapture);
-    MugShot.createBoundingBox(e.pageX - MugShot.offset.left, e.pageY - MugShot.offset.top, 5, 5);
+    // left top height width
+    var frame = {
+      'lft': e.pageX - MugShot.offset.left,
+      'top': e.pageY - MugShot.offset.top,
+      'height': 5,
+      'width': 5,
+    };
+    MugShot.createBoundingBox(frame);
+    // MugShot.createBoundingBox(e.pageX - MugShot.offset.left, e.pageY - MugShot.offset.top, 5, 5);
     MugShot.mugs[MugShot.cfi].frame.el.classList.toggle('mugshot-active');
     MugShot.toggleSubmitBtn('on');
   }

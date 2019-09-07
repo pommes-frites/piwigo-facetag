@@ -180,7 +180,7 @@ function defined_tags() {
  * Queries tagged faces for the image id
  */
 function defined_mugshots( $id ) {
-	$sql = '
+  $mugshotSql = '
   SELECT
     mst.image_id,
     mst.tag_id,
@@ -195,7 +195,25 @@ function defined_mugshots( $id ) {
   INNER JOIN `' . TAGS_TABLE . '` AS tt ON mst.tag_id = tt.id
   WHERE mst.image_id = ' . $id . ';';
 
-  return fetch_sql($sql, false, true);
+  $mugshotSqlResult = fetch_sql($mugshotSql, false, false);
+
+  if (is_array($mugshotSqlResult)) {
+    foreach($mugshotSqlResult as $key => $mugshot) {
+      $tagSql = '
+      SELECT
+        id,
+        url_name
+      FROM ' . TAGS_TABLE . '
+      WHERE id=' . $mugshot['tag_id'] . ';
+      ';
+      $tagSqlResult = fetch_sql($tagSql, false, false);
+      $tagUrl = make_index_url(array('tags' => array($tagSqlResult[0])));
+      $mugshotSqlResult[$key]['tag_url'] = $tagUrl;
+    }
+  }
+
+
+  return json_encode($mugshotSqlResult);
 }
 
 
