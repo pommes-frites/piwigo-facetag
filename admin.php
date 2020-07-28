@@ -58,7 +58,7 @@ if (isset($_GET['tab']) && in_array($_GET['tab'], $tab_codes)) {
    $tabsheet->add(
      $tab['code'],
      $tab['label'],
-     MUGSHOT_BASE_URL.'-'.$tab['code']
+     MUGSHOT_ADMIN.'-'.$tab['code']
      );
  }
  $tabsheet->select($page['tab']);
