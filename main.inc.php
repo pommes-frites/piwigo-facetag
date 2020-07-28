@@ -168,7 +168,7 @@ function query_mugshot_groups() {
  * Queries all tags in database
  */
 function defined_tags() {
-  $sql = 'SELECT name FROM ' . TAGS_TABLE . ' ORDER BY lastmodified ASC LIMIT 100;';
+  $sql = 'SELECT name FROM ' . TAGS_TABLE . ' ORDER BY lastmodified ASC LIMIT 500;';
 
   $x = fetch_sql($sql, 'name', false);
 
