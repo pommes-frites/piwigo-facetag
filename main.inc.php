@@ -163,7 +163,7 @@ function query_mugshot_groups() {
 
   $res = fetch_sql($sql, 'id', false);
 
-  return (count($res) == 0) ? 0 : $res;
+  return ($res && count($res) == 0) ? 0 : $res;
 }
 
 
