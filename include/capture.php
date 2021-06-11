@@ -3,6 +3,7 @@
 defined('MUGSHOT_PATH') or die('Hacking attempt!');
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+include_once(MUGSHOT_PATH . 'include/nn.training.thumbnails.php');
 
 function add_mugshot_methods($arr) {
   $service = &$arr[0];
@@ -40,6 +41,22 @@ function book_mugshots($data, &$service) {
     $imgH = pwg_db_real_escape_string($value['imageHeight']);
     $rm = pwg_db_real_escape_string($value['removeThis']);
     $tagName = ($tag == -1 && $name != '') ? tag_id_from_tag_name($name) : $tag;
+
+    // Create or remove the training thumbnails, depending on webmaster settings.
+    if ($plugin_config['autotag']) {
+      $sql = "SELECT * FROM `". IMAGES_TABLE . "` WHERE `id`=".$imageId.";";
+
+      $imgData = pwg_db_fetch_assoc(pwg_query($sql));
+      
+      // Remove or add cropped faces in the images to a directory.
+      if($rm == 0 && $width >= 40 && $height >= 40 && extension_loaded('imagick') === true) {
+        crop_image_faces($imgData['path'], $imgData['md5sum'], $name, $imgW, $imgH, $width, $height, $left, $top);
+      }
+    
+      if($rm == 1) {
+        delete_image_faces($name, $imgData['md5sum']);
+      }
+    }
 
     // Remove a mugshot
     if ($rm == 1) {
