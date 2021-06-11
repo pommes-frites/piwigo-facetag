@@ -5,6 +5,7 @@ Version: 2.0.0
 Description: Improved face tagging for Piwigo
 Plugin URI: http://piwigo.org/ext/extension_view.php?eid=867
 Author: cccraig
+Has Settings: true
 */
 
 if (!defined('PHPWG_ROOT_PATH')) die('Hacking attempt!');
@@ -29,7 +30,6 @@ $ws_file = MUGSHOT_PATH . 'include/capture.php';
 /*
  * Admin Event Handlers
  */
-add_event_handler('get_admin_plugin_menu_links', 'mugshot_admin_menu');
 add_event_handler('init', 'mugshot_lang_init');
 add_event_handler('loc_begin_page_header', 'mugshot_files', 40, 2);
 add_event_handler('loc_end_picture', 'mugshot_button');
@@ -105,21 +105,6 @@ function fetch_sql($sql, $col, $ser) {
  */
 function mugshot_lang_init(){
 	load_language('plugin.lang', MUGSHOT_PATH);
-}
-
-
-/*
- * Initializes the admin menu
- */
-function mugshot_admin_menu( $menu ) {
-	array_push(
-		$menu,
-		array(
-			'NAME'  => 'MugShot',
-			'URL'   => get_admin_plugin_menu_link(dirname(__FILE__)).'/admin.php'
-		)
-	);
-	return $menu;
 }
 
 
