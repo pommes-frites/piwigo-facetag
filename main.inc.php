@@ -17,6 +17,7 @@ if (!defined('PHPWG_ROOT_PATH')) die('Hacking attempt!');
 define('MUGSHOT_ID',      basename(dirname(__FILE__)));
 define('MUGSHOT_PATH' ,   PHPWG_PLUGINS_PATH . MUGSHOT_ID . '/');
 define('MUGSHOT_ADMIN',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
+define('MUGSHOT_BASE_URL',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
 define('MUGSHOT_VERSION', '2.0.0');
 define('MUGSHOT_TABLE', '`face_tag_positions`');
 
@@ -39,11 +40,16 @@ add_event_handler('loc_end_picture', 'mugshot_button');
  * Conditional Logic for groups
  */
 $current_user_groups = query_mugshot_groups();
-if ($current_user_groups != 0) {
+
+if (count($current_user_groups) != 0) {
   $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
-  $group_list = $plugin_config['groups'];
+
+  $group_list = $plugin_config['groups'] ?? array();
+
   $intersect = [];
-  if(is_array($group_list)) {
+
+  if(is_array($group_list) && count($group_list) != 0) {
+
     $intersect = array_intersect($group_list, $current_user_groups);
   }
 }
@@ -148,7 +154,7 @@ function query_mugshot_groups() {
 
   $res = fetch_sql($sql, 'id', false);
 
-  return ($res && count($res) == 0) ? 0 : $res;
+  return ($res && count($res) == 0) ? array() : $res;
 }
 
 
