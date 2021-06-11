@@ -12,8 +12,6 @@ global $template;
  include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
  $my_base_url = get_root_url().'admin.php?page=plugin-'.basename(dirname(__FILE__));
- 
-
 
 /*
  * Exit if user status is not okay

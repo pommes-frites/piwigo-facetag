@@ -5,7 +5,7 @@ defined('MUGSHOT_PATH') or die('Hacking attempt!');
 // Check if the directory is empty
 function dir_is_empty($dir) {
   if (!file_exists($dir)) {
-    return;
+    return TRUE;
   }
   $handle = opendir($dir);
   while (false !== ($entry = readdir($handle))) {
@@ -38,7 +38,7 @@ function auto_rotate_image($image) {
 }
 
 // Crop faces in the image
-function crop_image_faces($p, $imgFileName, $name, $iw, $ih, $width, $height, $left, $top) {
+function crop_image_faces($p, $md5, $name, $iw, $ih, $width, $height, $left, $top) {
   try {
     $image = new Imagick($p);
     auto_rotate_image($image);
@@ -46,18 +46,19 @@ function crop_image_faces($p, $imgFileName, $name, $iw, $ih, $width, $height, $l
     $image -> cropImage($width, $height, $left, $top);
     $struc = str_replace(' ', '_', strtolower($name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
+    $trainingName = $structure.'/'.$md5.'.jpg';
 
     if (!file_exists($structure)) {
-      mkdir($structure, 0775, true);
+      mkdir($structure, 0777, true);
     }
 
     // If the file exists that means you have,
     // 1) tagged someone twice in the same photo,
     // 2) tagged someone in the same photo that is asociated with another album.
     // In Either case, we don't want duplicate photos that are almost exactly the same cluttering up our training data.
-    if (!file_exists($structure.'/'.$imgFileName)) {
-      $image -> writeImage($structure.'/'.$imgFileName.'.jpg');
-      chmod($structure, 0760);
+    if (!file_exists($trainingName)) {
+      $image -> writeImage($trainingName);
+      chmod($structure, 0777);
     }
 
   } catch (Exception $e) {
@@ -66,18 +67,19 @@ function crop_image_faces($p, $imgFileName, $name, $iw, $ih, $width, $height, $l
 }
 
 // Delete image face if the tag is deleted
-function delete_image_faces($name, $imgFileName) {
+function delete_image_faces($name, $md5) {
   try {
     $struc = str_replace(' ', '_', strtolower($name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
+    $trainingName = $structure.'/'.$md5.'.jpg';
     $remTest = false;
     $dirTest = false;
 
-    if (file_exists($structure.'/'.$imgFileName)) {
-      $remTest = unlink($structure.'/'.$imgFileName.'.jpg');
+    if (file_exists($trainingName)) {
+      $remTest = unlink($trainingName);
     }
 
-    if (dir_is_empty($structure)) {
+    if (is_dir($structure) && dir_is_empty($structure)) {
       $dirTest = rmdir($structure);
     }
 
