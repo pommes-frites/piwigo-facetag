@@ -41,15 +41,14 @@ add_event_handler('loc_end_picture', 'mugshot_button');
  */
 $current_user_groups = query_mugshot_groups();
 
+$intersect = array();
+
 if (count($current_user_groups) != 0) {
   $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
 
   $group_list = $plugin_config['groups'] ?? array();
 
-  $intersect = [];
-
   if(is_array($group_list) && count($group_list) != 0) {
-
     $intersect = array_intersect($group_list, $current_user_groups);
   }
 }
@@ -75,6 +74,7 @@ if (is_array($current_user_groups) && count($intersect) != 0) {
   }
 
   define('MUGSHOT_USER_ADMIN', true);
+
   if(script_basename() != 'admin') {
     add_event_handler('loc_end_page_tail', 'insert_tag_list');
   }
@@ -144,7 +144,7 @@ function query_mugshot_groups() {
   if (isset($_SESSION['pwg_uid'])) {
     $user = $_SESSION['pwg_uid'];
   } else {
-    return 0;
+    return array();
   }
 
   $sql = 'SELECT gt.id FROM ' . USER_GROUP_TABLE . ' AS ugt

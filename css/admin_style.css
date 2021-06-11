@@ -11,7 +11,6 @@
 
 .mugshot-icon {
   font-family: 'mugshot' !important;
-  speak: none;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -38,22 +37,11 @@
   z-index: 1500;
 }
 
-.mugshot-frame {
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  visibility: visible;
-  z-index: 1500;
-}
-
-#theImage:hover .mugshot-frame,
-#theImage:hover .mugshot-active {
+.mugshot-selecting .mugshot-frame,
+.mugshot-active {
   border: 2px solid #ccc;
   border-radius: 2px;
-}
-
-#theImage:hover .mugshot-frame:not(.mugshot-active) .mugshot-frame-name {
-    display: block;
+  visibility: visible !important;
 }
 
 .mugshot-frame-name {
@@ -86,20 +74,12 @@
   color: inherit;
 }
 
-.mugshot-active {
-  visibility: visible !important;
-}
-
-.mugshot-frame:hover .mugshot-delete {
+.mugshot-selecting .mugshot-delete {
   visibility: visible;
 }
 
 .mugshot-mousetrap {
   pointer-events: none;
-}
-
-.mugshot-active {
-  visibility: visible !important;
 }
 
 .mugshot-textbox {
@@ -185,7 +165,7 @@
 }
 
 #MugShotDiv {
-  /*border: 1px solid red;*/
+  /* border: 1px solid red; */
   display: inline-block;
   overflow: visible;
   pointer-events: none;
