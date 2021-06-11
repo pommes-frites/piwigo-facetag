@@ -164,6 +164,7 @@
   display: block !important;
 }
 
+#reflay,
 #MugShotDiv {
   /* border: 1px solid red; */
   display: inline-block;
@@ -175,4 +176,10 @@
 #theImage {
   overflow: hidden;
   position: relative;
+}
+
+#overlay, .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
 }

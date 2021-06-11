@@ -130,7 +130,7 @@ function mugshot_files() {
       $style_path = 'plugins/MugShot/css/style.css';
       $script_path = 'plugins/MugShot/js/mug.js';
     }
-
+    
 		$template -> func_combine_css(array('id' => 'customMugCss', 'path' => $style_path));
     $template -> func_combine_script(  array('id' => 'customMugJs', 'path' => $script_path, 'load' => 'async'));
 	}

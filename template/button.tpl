@@ -7,8 +7,10 @@ document.addEventListener('DOMContentLoaded', function () {
     {/literal}{$IMAGE_ID}{literal},
     {/literal}'{$MUGSHOT_ACTION}'{literal});
 });
+
 {/literal}{/footer_script}
 
+{literal}<script src="http://localhost/piwigo/plugins/MugShot/js/face-api.js"></script>{/literal}
 {if MUGSHOT_USER_ADMIN}
   {if BOOT == 1}
     <li class="nav-item">
