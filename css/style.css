@@ -1,29 +1,51 @@
-/* CSS code for your plugin */
-
-.facetag-button {
-  background:url('../img/facetag.png') center center no-repeat !important;
-  min-width:26px;
-  min-height:26px;
+.mugshot-frame {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  visibility: visible;
+  z-index: 1500;
 }
 
-.facetag-button:hover, .facetag-button_active {
-  background:url('../img/facetag_active.png') center center no-repeat !important;
+#theImage:hover .mugshot-frame,
+#theImage:hover .mugshot-active {
+  border: 2px solid #ccc;
+  border-radius: 2px;
 }
 
-.facetag-div{
-    margin:0px;
-    padding:0px;
-}
-.facetag-div:hover, .facetag-div_active{
-    border:2px dashed white;
+#theImage:hover .mugshot-frame-name {
+    display: block;
 }
 
-.facetag-textbox{
-    margin:5px 0px 0px 0px;
-    padding:0px;
-	visibility: hidden;
+.mugshot-frame-name {
+  background: #fff;
+  border-radius: 2px;
+  display: none;
+  left: 50%;
+  padding: 1px 4px;
+  position: absolute;
+  top: calc(100% + 6px);
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
 
-.facetag-textbox_active{
-	visibility: visible;
+.mugshot-frame-name::before {
+  border-bottom: 4px solid #fff;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  content: ' ';
+  display: block;
+  height: 0;
+  left: 50%;
+  position: absolute;
+  top: -4px;
+  transform: translateX(-50%);
+  width: 0;
+}
+
+.mugshot-frame-name:hover {
+  color: inherit;
+}
+
+.mugshot-active {
+  visibility: visible !important;
 }
