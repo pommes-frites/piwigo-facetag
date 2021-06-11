@@ -42,7 +42,10 @@ $current_user_groups = query_mugshot_groups();
 if ($current_user_groups != 0) {
   $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
   $group_list = $plugin_config['groups'];
-  $intersect = array_intersect((array)$group_list, $current_user_groups);
+  $intersect = [];
+  if(is_array($group_list)) {
+    $intersect = array_intersect($group_list, $current_user_groups);
+  }
 }
 
 if (is_array($current_user_groups) && count($intersect) != 0) {
@@ -160,7 +163,7 @@ function query_mugshot_groups() {
 
   $res = fetch_sql($sql, 'id', false);
 
-  return (count($res) == 0) ? 0 : $res;
+  return ($res && count($res) == 0) ? 0 : $res;
 }
 
 
