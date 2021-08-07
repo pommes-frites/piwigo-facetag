@@ -30,7 +30,6 @@ var MugShot = {
   selecting: false,
 
   init: (function (f, imageId, action) {
-    console.log(f)
     this.refreshImgData();
     this.makeWrapper();
     this.imageId = imageId;
@@ -47,7 +46,8 @@ var MugShot = {
 
   frame: (function () {
     if (this.active === false) {
-      this.refreshImgData()
+      this.refreshImgData();
+      this.toggleSubmitBtn('on');
       this.active = true;
       this.img.draggable = false;
       this.map = this.img.useMap;
@@ -59,11 +59,13 @@ var MugShot = {
   }),
 
   makeWrapper: (function () {
+    // Div for MugShot Stuff
     var w = document.createElement('div');
     w.id = this.id2;
     w.style.left = this.offset.left - this.poffset.left + 'px';
     w.style.width = this.offset.width + 'px';
     w.style.height = this.offset.height + 'px';
+    w.style.zIndex = 1000;
     document.getElementById('theImage').append(w)
   }),
 
@@ -128,10 +130,13 @@ var MugShot = {
     if (x == 'off') {
       if (this.submitBtn.classList.contains('mugshot-active')) {
         this.submitBtn.classList.toggle('mugshot-active');
+        document.getElementById(this.id2).classList.toggle('mugshot-selecting');
+        this.active = false;
       }
     } else if (x == 'on') {
       if (!this.submitBtn.classList.contains('mugshot-active')) {
         this.submitBtn.classList.toggle('mugshot-active');
+        document.getElementById(this.id2).classList.toggle('mugshot-selecting');
       }
     }
   }),
@@ -290,6 +295,7 @@ var MugShot = {
     name.className = 'mugshot-textbox';
     name.style.top = parseInt(mug.top) + parseInt(mug.height) + 'px';
     name.style.left = mug.el.style.left;
+    name.style.width = mug.el.style.width;
     document.getElementById(this.id2).append(name);
     this.mugs[this.cfi].name.el = name;
     this.mugs[this.cfi].frame.el.title = name.value;

@@ -1,10 +1,11 @@
 <?php
 /*
 Plugin Name: Mug Shot
-Version: 1.2.1
+Version: 2.0.0
 Description: Improved face tagging for Piwigo
 Plugin URI: http://piwigo.org/ext/extension_view.php?eid=867
 Author: cccraig
+Has Settings: true
 */
 
 if (!defined('PHPWG_ROOT_PATH')) die('Hacking attempt!');
@@ -16,7 +17,8 @@ if (!defined('PHPWG_ROOT_PATH')) die('Hacking attempt!');
 define('MUGSHOT_ID',      basename(dirname(__FILE__)));
 define('MUGSHOT_PATH' ,   PHPWG_PLUGINS_PATH . MUGSHOT_ID . '/');
 define('MUGSHOT_ADMIN',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
-define('MUGSHOT_VERSION', '1.2.1');
+define('MUGSHOT_BASE_URL',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
+define('MUGSHOT_VERSION', '2.0.0');
 define('MUGSHOT_TABLE', '`face_tag_positions`');
 
 
@@ -29,7 +31,6 @@ $ws_file = MUGSHOT_PATH . 'include/capture.php';
 /*
  * Admin Event Handlers
  */
-add_event_handler('get_admin_plugin_menu_links', 'mugshot_admin_menu');
 add_event_handler('init', 'mugshot_lang_init');
 add_event_handler('loc_begin_page_header', 'mugshot_files', 40, 2);
 add_event_handler('loc_end_picture', 'mugshot_button');
@@ -39,11 +40,15 @@ add_event_handler('loc_end_picture', 'mugshot_button');
  * Conditional Logic for groups
  */
 $current_user_groups = query_mugshot_groups();
-if ($current_user_groups != 0) {
+
+$intersect = array();
+
+if (count($current_user_groups) != 0) {
   $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
-  $group_list = $plugin_config['groups'];
-  $intersect = [];
-  if(is_array($group_list)) {
+
+  $group_list = $plugin_config['groups'] ?? array();
+
+  if(is_array($group_list) && count($group_list) != 0) {
     $intersect = array_intersect($group_list, $current_user_groups);
   }
 }
@@ -69,6 +74,7 @@ if (is_array($current_user_groups) && count($intersect) != 0) {
   }
 
   define('MUGSHOT_USER_ADMIN', true);
+
   if(script_basename() != 'admin') {
     add_event_handler('loc_end_page_tail', 'insert_tag_list');
   }
@@ -109,21 +115,6 @@ function mugshot_lang_init(){
 
 
 /*
- * Initializes the admin menu
- */
-function mugshot_admin_menu( $menu ) {
-	array_push(
-		$menu,
-		array(
-			'NAME'  => 'MugShot',
-			'URL'   => get_admin_plugin_menu_link(dirname(__FILE__)).'/admin.php'
-		)
-	);
-	return $menu;
-}
-
-
-/*
  * Catch the page header and combine our css
  */
 function mugshot_files() {
@@ -139,7 +130,7 @@ function mugshot_files() {
       $style_path = 'plugins/MugShot/css/style.css';
       $script_path = 'plugins/MugShot/js/mug.js';
     }
-
+    
 		$template -> func_combine_css(array('id' => 'customMugCss', 'path' => $style_path));
     $template -> func_combine_script(  array('id' => 'customMugJs', 'path' => $script_path, 'load' => 'async'));
 	}
@@ -153,7 +144,7 @@ function query_mugshot_groups() {
   if (isset($_SESSION['pwg_uid'])) {
     $user = $_SESSION['pwg_uid'];
   } else {
-    return 0;
+    return array();
   }
 
   $sql = 'SELECT gt.id FROM ' . USER_GROUP_TABLE . ' AS ugt
@@ -163,7 +154,7 @@ function query_mugshot_groups() {
 
   $res = fetch_sql($sql, 'id', false);
 
-  return ($res && count($res) == 0) ? 0 : $res;
+  return ($res && count($res) == 0) ? array() : $res;
 }
 
 

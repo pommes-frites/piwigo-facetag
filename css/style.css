@@ -6,13 +6,7 @@
   z-index: 1500;
 }
 
-#theImage:hover .mugshot-frame,
-#theImage:hover .mugshot-active {
-  border: 2px solid #ccc;
-  border-radius: 2px;
-}
-
-#theImage:hover .mugshot-frame-name {
+#MugShotDiv:hover .mugshot-frame-name {
     display: block;
 }
 

@@ -21,7 +21,7 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 $lang['MugShot'] = 'MugShot';
-$lang['Name that mug!'] = 'Name that mug!';
+$lang['Name that face!'] = 'Name that face!';
 $lang['Configuration'] = 'Configuration';
 $lang['Save'] = 'Save';
 $lang['Groups'] = 'Groups';
