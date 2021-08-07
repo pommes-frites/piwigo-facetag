@@ -52,8 +52,14 @@ function book_mugshots($data, &$service) {
   $totalImageTags = count($data);
 
   foreach ($data as $key => $value) {
-    $existingTagId = pwg_db_real_escape_string($value['tagId']);
     $labeledTagName = get_pretty_name($value['name']);
+        
+    // If something empty was submitted, just ignore it.
+    if ($labeledTagName == '') {
+      continue;
+    }
+
+    $existingTagId = pwg_db_real_escape_string($value['tagId']);
     $top = pwg_db_real_escape_string($value['top']);
     $left = pwg_db_real_escape_string($value['left']);
     $width = pwg_db_real_escape_string($value['width']);
@@ -61,7 +67,9 @@ function book_mugshots($data, &$service) {
     $imgW = pwg_db_real_escape_string($value['imageWidth']);
     $imgH = pwg_db_real_escape_string($value['imageHeight']);
     $rm = pwg_db_real_escape_string($value['removeThis']);
-    $newTagId = ($existingTagId == -1 && $labeledTagName != '') ? tag_id_from_tag_name($labeledTagName) : $existingTagId;
+
+    // If it's a brand new tag, we won't have sent a tag ID back with the data.
+    $newTagId = ($existingTagId == -1) ? tag_id_from_tag_name($labeledTagName) : $existingTagId;
 
     // Create or remove the training thumbnails, depending on webmaster settings.
     if ($plugin_config['autotag']) {
@@ -73,7 +81,7 @@ function book_mugshots($data, &$service) {
       // By adding the imageId (unique) and tagId (unique per image) we get a simple way of achieving this without doing
       // an SQL query or counting the images in the directory. While $imgNumber is not guaranteed to be globally unique,
       // it will always be unique within our directory structure which is ../pinkie_jenkins/pinkie_jenkins<ImgId><TagId>.
-      $imgNumber = ($existingTagId == -1 && $labeledTagName != '') ? $imageId.$existingTagId : $imageId.$newTagId;
+      $imgNumber = ($existingTagId != -1) ? $imageId.$existingTagId : $imageId.$newTagId;
 
       // Remove or add cropped faces in the images to a directory.
       if(extension_loaded('imagick') === true && $rm == 0 && $width >= 40 && $height >= 40) {
@@ -92,7 +100,7 @@ function book_mugshots($data, &$service) {
     }
 
     // Update a mugshot
-    if ($existingTagId == -1 && $labeledTagName != '') {
+    if ($existingTagId == -1) {
       $faceTagPositionsInsertionString .= "('$newTagId','$imageId','$top','$left','$width','$height','$imgW','$imgH'),";
       $imageIdTagIdInsertionString .= "('$imageId','$newTagId'),";
     } elseif ($existingTagId > 0 && $labeledTagName != '') {
