@@ -30,7 +30,6 @@ var MugShot = {
   selecting: false,
 
   init: (function (f, imageId, action) {
-    console.log(f)
     this.refreshImgData();
     this.makeWrapper();
     this.imageId = imageId;
@@ -63,15 +62,6 @@ var MugShot = {
     // Div for MugShot Stuff
     var w = document.createElement('div');
     w.id = this.id2;
-    w.style.left = this.offset.left - this.poffset.left + 'px';
-    w.style.width = this.offset.width + 'px';
-    w.style.height = this.offset.height + 'px';
-    w.style.zIndex = 1000;
-    document.getElementById('theImage').append(w)
-
-    // Canvas for Face-Api stuff
-    var w = document.createElement('canvas');
-    w.id = 'reflay';
     w.style.left = this.offset.left - this.poffset.left + 'px';
     w.style.width = this.offset.width + 'px';
     w.style.height = this.offset.height + 'px';

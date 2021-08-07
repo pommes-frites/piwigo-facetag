@@ -38,7 +38,7 @@ function auto_rotate_image($image) {
 }
 
 // Crop faces in the image
-function crop_image_faces($p, $md5, $name, $iw, $ih, $width, $height, $left, $top) {
+function crop_image_faces($p, $imgNum, $name, $iw, $ih, $width, $height, $left, $top) {
   try {
     $image = new Imagick($p);
     auto_rotate_image($image);
@@ -46,7 +46,7 @@ function crop_image_faces($p, $md5, $name, $iw, $ih, $width, $height, $left, $to
     $image -> cropImage($width, $height, $left, $top);
     $struc = str_replace(' ', '_', strtolower($name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
-    $trainingName = $structure.'/'.$struc.'.jpg';
+    $trainingName = $structure.'/'.$struc.$imgNum.'.jpg';
 
     if (!file_exists($structure)) {
       mkdir($structure, 0777, true);
@@ -67,11 +67,12 @@ function crop_image_faces($p, $md5, $name, $iw, $ih, $width, $height, $left, $to
 }
 
 // Delete image face if the tag is deleted
-function delete_image_faces($name, $md5) {
+function delete_image_faces($name, $imgNum) {
   try {
     $struc = str_replace(' ', '_', strtolower($name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
-    $trainingName = $structure.'/'.$md5.'.jpg';
+    $struc = str_replace(' ', '_', strtolower($name));
+    $trainingName = $structure.'/'.$struc.$imgNum.'.jpg';
     $remTest = false;
     $dirTest = false;
 

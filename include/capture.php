@@ -15,6 +15,25 @@ function add_mugshot_methods($arr) {
   );
 }
 
+/**
+ * Converts names to ucfirst case, as determined by a space between surnames.
+ */
+function get_pretty_name($labeledTagName) {
+  $safeName = pwg_db_real_escape_string($labeledTagName);
+
+  $splitName = explode(" ", $safeName);
+
+  $arraySize = count($splitName);
+
+  $prettyName = array();
+
+  for ($i=0; $i < $arraySize; $i++) { 
+    $prettyName[$i] = ucfirst($splitName[$i]);
+  }
+
+  return implode(" ", $prettyName);
+}
+
 // Add the posted mugshots to the database
 function book_mugshots($data, &$service) {
 
@@ -26,13 +45,15 @@ function book_mugshots($data, &$service) {
   $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
 
   unset($data['imageId']);
-  $tagSql = '';
-  $varString = '';
-  $dString = '';
-die($data);
+  $imageIdTagIdInsertionString = '';             // 
+  $faceTagPositionsInsertionString = '';          // Variable string. Groups data for entry in SQL database.
+  $deleteTagQuery = '';            // Delete string. Tags in the current image being removed.
+
+  $totalImageTags = count($data);
+
   foreach ($data as $key => $value) {
-    $tag = pwg_db_real_escape_string($value['tagId']);
-    $name = pwg_db_real_escape_string($value['name']);
+    $existingTagId = pwg_db_real_escape_string($value['tagId']);
+    $labeledTagName = get_pretty_name($value['name']);
     $top = pwg_db_real_escape_string($value['top']);
     $left = pwg_db_real_escape_string($value['left']);
     $width = pwg_db_real_escape_string($value['width']);
@@ -40,7 +61,7 @@ die($data);
     $imgW = pwg_db_real_escape_string($value['imageWidth']);
     $imgH = pwg_db_real_escape_string($value['imageHeight']);
     $rm = pwg_db_real_escape_string($value['removeThis']);
-    $tagName = ($tag == -1 && $name != '') ? tag_id_from_tag_name($name) : $tag;
+    $newTagId = ($existingTagId == -1 && $labeledTagName != '') ? tag_id_from_tag_name($labeledTagName) : $existingTagId;
 
     // Create or remove the training thumbnails, depending on webmaster settings.
     if ($plugin_config['autotag']) {
@@ -48,55 +69,59 @@ die($data);
 
       $imgData = pwg_db_fetch_assoc(pwg_query($sql));
       
+      // DeepFace requires  the persons name and an appended integer for the count of the images, i.e. pinkie_jenkins5, pinkie_jenkins6.
+      // By adding the imageId (unique) and tagId (unique per image) we get a simple way of achieving this without doing
+      // an SQL query or counting the images in the directory. While $imgNumber is not guaranteed to be globally unique,
+      // it will always be unique within our directory structure which is ../pinkie_jenkins/pinkie_jenkins<ImgId><TagId>.
+      $imgNumber = ($existingTagId == -1 && $labeledTagName != '') ? $imageId.$existingTagId : $imageId.$newTagId;
+
       // Remove or add cropped faces in the images to a directory.
-      if($rm == 0 && $width >= 40 && $height >= 40 && extension_loaded('imagick') === true) {
-        crop_image_faces($imgData['path'], $imgData['md5sum'], $name, $imgW, $imgH, $width, $height, $left, $top);
+      if(extension_loaded('imagick') === true && $rm == 0 && $width >= 40 && $height >= 40) {
+        crop_image_faces($imgData['path'], $imgNumber, $labeledTagName, $imgW, $imgH, $width, $height, $left, $top);
       }
     
       if($rm == 1) {
-        delete_image_faces($name, $imgData['md5sum']);
+        delete_image_faces($labeledTagName, $imgNumber);
       }
     }
 
     // Remove a mugshot
     if ($rm == 1) {
-      $dString .= ($tag != '') ? $tag . ',' : '';
+      $deleteTagQuery .= ($existingTagId != '') ? $existingTagId . ',' : '';
       continue;
     }
 
     // Update a mugshot
-    if ($tag == -1 && $name != '') {
-      $varString .= "('" . $tagName . "','" . $imageId . "','" . $top . "','" . $left . "','";
-      $varString .= $width . "','" . $height . "','" . $imgW . "','" . $imgH . "'),";
-      $tagSql .= "('" . $imageId . "','" . $tagName . "'),";
-    } elseif ($tag > 0 && $name != '') {
-      $url = strtolower(str_replace(' ', '_', $name));
-      $sql = "UPDATE " . TAGS_TABLE . " AS tt SET tt.name='" . $name . "', tt.url_name='" . $url . "' WHERE tt.id='" . $tag . "';";
+    if ($existingTagId == -1 && $labeledTagName != '') {
+      $faceTagPositionsInsertionString .= "('$newTagId','$imageId','$top','$left','$width','$height','$imgW','$imgH'),";
+      $imageIdTagIdInsertionString .= "('$imageId','$newTagId'),";
+    } elseif ($existingTagId > 0 && $labeledTagName != '') {
+      $url = strtolower(str_replace(' ', '_', $labeledTagName));
+      $sql = "UPDATE " . TAGS_TABLE . " AS tt SET tt.name='" . $labeledTagName . "', tt.url_name='" . $url . "' WHERE tt.id='" . $existingTagId . "';";
       $r = pwg_query($sql);
     }
   }
 
   // Add new mugshot
-  if ($varString !== '') {
-    $varString = substr(trim($varString), 0, -1);
+  if ($faceTagPositionsInsertionString !== '') {
+    $faceTagPositionsInsertionString = substr(trim($faceTagPositionsInsertionString), 0, -1);
     $frameSql = "INSERT INTO " . MUGSHOT_TABLE . " (`tag_id`, `image_id`, `top`, `lft`, `width`, `height`, `image_width`, `image_height`) ";
-    $frameSql .= "VALUES " . $varString . " ON DUPLICATE KEY UPDATE `top`=VALUES(`top`), ";
-    $frameSql .= "`lft`=VALUES(`lft`), `width`=VALUES(`width`), `height`=VALUES(`height`), ";
-    $frameSql .= "`image_width`=VALUES(`image_width`), `image_height`=VALUES(`image_height`);";
-    $tagSql = substr(trim($tagSql), 0, -1);
-    $tagSql = "INSERT IGNORE INTO " . IMAGE_TAG_TABLE . " (`image_id`, `tag_id`) VALUES " . $tagSql . ';';
-    $tagResult = pwg_query($tagSql);
+    $frameSql .= "VALUES " . $faceTagPositionsInsertionString . " ON DUPLICATE KEY UPDATE `top`=VALUES(`top`), ";
+    $frameSql .= "`lft`=VALUES(`lft`), `width`=VALUES(`width`), `height`=VALUES(`height`), `image_width`=VALUES(`image_width`), `image_height`=VALUES(`image_height`);";
+    $imageIdTagIdInsertionString = substr(trim($imageIdTagIdInsertionString), 0, -1);
+    $imageIdTagIdInsertionString = "INSERT IGNORE INTO " . IMAGE_TAG_TABLE . " (`image_id`, `tag_id`) VALUES " . $imageIdTagIdInsertionString . ';';
+    $existingTagIdResult = pwg_query($imageIdTagIdInsertionString);
     $frameResult = pwg_query($frameSql);
   } else {
-    $tagResult = true;
+    $existingTagIdResult = true;
     $frameResult = true;
   }
 
   // Delete mugshot
-  if ($dString !== '') {
-    $dString = '(' . substr(trim($dString), 0, -1) . ')';
-    $deleteSql1 = "DELETE FROM `face_tag_positions` WHERE `tag_id` IN " . $dString . " AND `image_id`=".$imageId.";";
-    $deleteSql2 = "DELETE FROM " . IMAGE_TAG_TABLE . " WHERE `tag_id` IN " . $dString . ";";
+  if ($deleteTagQuery !== '') {
+    $deleteTagQuery = '(' . substr(trim($deleteTagQuery), 0, -1) . ')';
+    $deleteSql1 = "DELETE FROM " . MUGSHOT_TABLE . " WHERE `tag_id` IN $deleteTagQuery AND `image_id`='$imageId';";
+    $deleteSql2 = "DELETE FROM " . IMAGE_TAG_TABLE . " WHERE `tag_id` IN $deleteTagQuery;";
     $dResult1 = pwg_query($deleteSql1);
     $dResult2 = pwg_query($deleteSql2);
   } else {
@@ -104,7 +129,7 @@ die($data);
     $dResult2 = true;
   }
 
-  return json_encode([$tagResult, $frameResult, $dResult1, $dResult2]);
+  return json_encode([$existingTagIdResult, $frameResult, $dResult1, $dResult2]);
 }
 
 
