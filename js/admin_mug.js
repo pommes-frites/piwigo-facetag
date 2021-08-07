@@ -43,8 +43,6 @@ var MugShot = {
     document.getElementById(this.id2).append(this.tagList);
     this.imageId = imageId;
     this.postAction = action;
-
-    //face();
   }),
 
   frame: (function () {
@@ -530,42 +528,4 @@ function refreshOnResize(e) {
       MugShot.updateWrapper();
       MugShot.refreshCapture();
   }
-}
-
-async function face(){
-  console.log("I've been initiated.");
-  const MODEL_URL = '/piwigo/plugins/MugShot/js/models'
-
-  await faceapi.loadSsdMobilenetv1Model(MODEL_URL)
-  //await faceapi.loadTinyFaceDetectorModel(MODEL_URL)
-  // new faceapi.TinyFaceDetectorOptions()
-  await faceapi.loadFaceLandmarkModel(MODEL_URL)
-  await faceapi.loadFaceRecognitionModel(MODEL_URL)
-  await faceapi.loadFaceExpressionModel(MODEL_URL)
-  await faceapi.loadAgeGenderModel(MODEL_URL)
-
-  console.log("I've been loaded.")
-
-  const img = document.getElementById('theMainImage');
-  let fullFaceDescriptions = await faceapi.detectAllFaces(img)
-    .withFaceLandmarks()
-    .withFaceDescriptors()
-    .withFaceExpressions()
-    .withAgeAndGender()
-
-  console.log("I've been processed.")
-
-  const canvas = $('#reflay').get(0)
-  faceapi.matchDimensions(canvas, img)
-
-  fullFaceDescriptions = faceapi.resizeResults(fullFaceDescriptions, img)
-  faceapi.draw.drawDetections(canvas, fullFaceDescriptions)
-  faceapi.draw.drawFaceLandmarks(canvas, fullFaceDescriptions)
-  faceapi.draw.drawFaceExpressions(canvas, fullFaceDescriptions, 0.05)
-
-  fullFaceDescriptions.forEach( detection => {
-    const box = detection.detection.box
-    const drawBox = new faceapi.draw.DrawBox(box, { label: Math.round(detection.age) + " year old " + detection.gender })
-    drawBox.draw(canvas)
-  })
 }
