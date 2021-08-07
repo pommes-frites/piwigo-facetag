@@ -37,4 +37,4 @@ from deepface import DeepFace
 
 DeepFace.stream("/<YourPiwigoInstall>/plugins/MugShot/training")
 ```
-
+If you've labeled a few photos with yourself in them, you can run the above code with a webcam plugged in and it will identify you. What remains here is code to periodically rebuild the model (as more face tags are added) and then dynamically run it for images as they are uploaded. Things to think about include grabbing the ratio and position of the image at its current size. This is important for ensuring that when the image is resized in Piwigo the face label can be correspondingly updated.
