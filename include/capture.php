@@ -29,7 +29,7 @@ function book_mugshots($data, &$service) {
   $tagSql = '';
   $varString = '';
   $dString = '';
-
+die($data);
   foreach ($data as $key => $value) {
     $tag = pwg_db_real_escape_string($value['tagId']);
     $name = pwg_db_real_escape_string($value['name']);

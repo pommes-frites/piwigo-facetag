@@ -46,7 +46,7 @@ function crop_image_faces($p, $md5, $name, $iw, $ih, $width, $height, $left, $to
     $image -> cropImage($width, $height, $left, $top);
     $struc = str_replace(' ', '_', strtolower($name));
     $structure = getcwd()."/plugins/MugShot/training/".$struc;
-    $trainingName = $structure.'/'.$md5.'.jpg';
+    $trainingName = $structure.'/'.$struc.'.jpg';
 
     if (!file_exists($structure)) {
       mkdir($structure, 0777, true);

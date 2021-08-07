@@ -44,7 +44,7 @@ var MugShot = {
     this.imageId = imageId;
     this.postAction = action;
 
-    face();
+    //face();
   }),
 
   frame: (function () {

@@ -73,6 +73,22 @@ jQuery(document).ready(function() {
 			</p><br>
 		</div>
 
+    <!-- Enable the face-api button
+			<p><br>
+        <label for="faceapi">
+        <strong>{'Enable button for identifying facial landmarks with face-api'|@translate}</strong><br>
+        <i>This is primarily for testing</i><br><br>
+    			{if $autotag }
+    				<input type="radio" id="autotag1" name="autotag" value="1" checked /><b><i>ALLOW</i></b> MugShot to crop tagged faces from photos<br>
+    				<input type="radio" id="autotag2" name="autotag" value="0"/><b><i>DO NOT ALLOW</i></b> MugShot to crop tagged faces from photos<br>
+    			{else}
+    				<input type="radio" id="autotag1" name="autotag" value="1"/><b><i>ALLOW</i></b> MugShot to crop tagged faces from photos<br>
+    				<input type="radio" id="autotag2" name="autotag" value="0" checked /><b><i>DO NOT ALLOW</i></b> MugShot to crop tagged faces from photos<br>
+    			{/if}
+        </label>
+			</p><br>
+		</div> -->
+
     {if count($groups) > 0}
     	<p class="formButtons">
     		<input type="submit" value="{'Save'|@translate}" name="save" />
