@@ -143,8 +143,8 @@ function query_mugshot_groups() {
 /*
  * Queries all tags in database
  */
-function defined_tags() {
-  $sql = 'SELECT name FROM ' . TAGS_TABLE . ' ORDER BY lastmodified ASC LIMIT 100;';
+function defined_tags($max_tags) {
+  $sql = 'SELECT name FROM ' . TAGS_TABLE . " ORDER BY lastmodified ASC LIMIT $max_tags;";
 
   $x = fetch_sql($sql, 'name', false);
 
@@ -235,10 +235,14 @@ function insert_tag_list() {
 
   global $template;
 
+  $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
+
+  $max_tags = $plugin_config['max_tags'] ?? 500;
+
   /*
    * Array of tags
    */
-  $template -> assign('MUGSHOT_TAG_LIST', defined_tags());
+  $template -> assign('MUGSHOT_TAG_LIST', defined_tags($max_tags));
 
   /*
    * Specify the tag list template file

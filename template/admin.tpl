@@ -15,6 +15,14 @@
 input[type="radio"] {
   margin-right: 10px;
 }
+.tagbox {
+  width:581px;
+  height:1.25em;
+  padding:5px 8px 2px;
+  border:1px solid #787777a6;
+  margin-right:25px;
+  background: white;
+}
 {/literal}{/html_style}
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
@@ -57,17 +65,23 @@ jQuery(document).ready(function() {
     {/if}
       </p>
 
+      <p><br>
+      <label for="max_tags">
+      <strong>{'Maximum number of tags to load client side for auto complete functionality'|@translate}</strong><br><br>
+      <input id="max_tags" type="text" size="2" maxlength="3" name="max_tags" value="{$max_tags|default:'500'}" class="tagbox nice">
+      </p>
+
     <!-- Enable automatic cropping of tagged faces -->
 			<p><br>
         <label for="autotag">
         <strong>{'Enable cropping of faces for automated tagging'|@translate}</strong><br>
-        <i>This requires ImageMagick to be installed, including the PHP plugin</i><br><br>
+        <i>{'This requires ImageMagick to be installed, including the PHP plugin'|@translate}</i><br><br>
     			{if $autotag }
-    				<input type="radio" id="autotag1" name="autotag" value="1" checked /><b><i>ALLOW</i></b> MugShot to crop tagged faces from photos<br>
-    				<input type="radio" id="autotag2" name="autotag" value="0"/><b><i>DO NOT ALLOW</i></b> MugShot to crop tagged faces from photos<br>
+    				<input type="radio" id="autotag1" name="autotag" value="1" checked /><b><i>{'ALLOW'|@translate}</i></b> {'MugShot to crop tagged faces from photos'|@translate}<br>
+    				<input type="radio" id="autotag2" name="autotag" value="0"/><b><i>D{'DO NOT ALLOW'|@translate}</i></b> {'MugShot to crop tagged faces from photos'|@translate}<br>
     			{else}
-    				<input type="radio" id="autotag1" name="autotag" value="1"/><b><i>ALLOW</i></b> MugShot to crop tagged faces from photos<br>
-    				<input type="radio" id="autotag2" name="autotag" value="0" checked /><b><i>DO NOT ALLOW</i></b> MugShot to crop tagged faces from photos<br>
+    				<input type="radio" id="autotag1" name="autotag" value="1"/><b><i>{'ALLOW'|@translate}</i></b> {'MugShot to crop tagged faces from photos'|@translate}<br>
+    				<input type="radio" id="autotag2" name="autotag" value="0" checked /><b><i>{'DO NOT ALLOW'|@translate}</i></b> {'MugShot to crop tagged faces from photos'|@translate}<br>
     			{/if}
         </label>
 			</p><br>
