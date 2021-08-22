@@ -35,6 +35,10 @@ add_event_handler('init', 'mugshot_lang_init');
 add_event_handler('loc_begin_page_header', 'mugshot_files', 40, 2);
 add_event_handler('loc_end_picture', 'mugshot_button');
 
+/*
+ * Include custom helper functions
+ */
+include_once(MUGSHOT_PATH . 'include/helpers.php');
 
 /*
  * Conditional Logic for groups
@@ -81,28 +85,6 @@ if (is_array($current_user_groups) && count($intersect) != 0) {
   add_event_handler('ws_add_methods', 'add_MUGSHOT_methods', EVENT_HANDLER_PRIORITY_NEUTRAL, $ws_file);
 } else {
   define('MUGSHOT_USER_ADMIN', false);
-}
-
-
-/*
- * Fetches Sql
- */
-function fetch_sql($sql, $col, $ser) {
-  $result = pwg_query($sql);
-
-  while ($row = pwg_db_fetch_assoc($result)) {
-    $data[] = $row;
-  }
-
-  if (!isset($data)) {
-    $data = 0;
-  } else {
-    if($col !== false) {
-      $data = array_column($data, $col);
-    }
-  }
-
-  return ($ser) ? json_encode($data) : $data;
 }
 
 

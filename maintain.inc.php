@@ -2,6 +2,16 @@
 
 defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
 
+/*
+ * Plugin Constants
+ */
+defined('MUGSHOT_ID') or define('MUGSHOT_ID',      basename(dirname(__FILE__)));
+defined('MUGSHOT_PATH') or define('MUGSHOT_PATH' ,   PHPWG_PLUGINS_PATH . MUGSHOT_ID . '/');
+
+/*
+ * Include custom helper functions
+ */
+include_once(MUGSHOT_PATH . 'include/helpers.php');
 
 /**
  * This class is used to expose maintenance methods to the plugins manager
@@ -26,31 +36,14 @@ class MugShot_maintain extends PluginMaintain
    */
   function install($plugin_version, &$errors=array())
   {
-    $configQuery = 'INSERT INTO ' . CONFIG_TABLE . ' (param,value,comment) VALUES ("MugShot","","MugShot configuration values");';
+    // Create the table to store face vector information
+    create_facetag_table();
 
-    $createTableQuery = 'CREATE TABLE IF NOT EXISTS `face_tag_positions` (
-      `image_id` mediumint(8) unsigned NOT NULL default "0",
-      `tag_id` smallint(5) unsigned NOT NULL default "0",
-      `top` float unsigned NOT NULL default "0",
-      `lft` float unsigned NOT NULL default "0",
-      `width` float unsigned NOT NULL default "0",
-      `height` float unsigned NOT NULL default "0",
-      `image_width` float unsigned NOT NULL default "0",
-      `image_height` float unsigned NOT NULL default "0",
-      PRIMARY KEY (`image_id`,`tag_id`)
-    )';
+    // Create the trigger to automatically clean tag references when tags are removed.
+    create_tag_drop_trigger();
 
-    $deleteTriggerQuery = "DROP TRIGGER IF EXISTS `sync_mug_shot`;";
-
-    $makeTriggerQuery = "CREATE TRIGGER `sync_mug_shot`
-      AFTER DELETE ON ".TAGS_TABLE."
-      FOR EACH ROW DELETE FROM face_tag_positions
-      WHERE face_tag_positions.tag_id = old.id";
-
-    pwg_query($configQuery);
-    pwg_query($createTableQuery);
-    pwg_query($deleteTriggerQuery);
-    pwg_query($makeTriggerQuery);
+    // Create the tagging user group and associate the current user.
+    create_tag_group();
 
     $this->installed = true;
   }
@@ -58,6 +51,7 @@ class MugShot_maintain extends PluginMaintain
   function deactivate()
   {
     // Do nothing
+    create_tag_group();
   }
 
   function update($old_version, $new_version, &$errors=array())
