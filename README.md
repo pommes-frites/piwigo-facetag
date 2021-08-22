@@ -17,7 +17,14 @@ This is a fork of the [piwigo-facetag plugin](https://github.com/pommes-frites/p
 
 7) Will auto capitalize names, e.g. pinkie jenkins => Pinkie Jenkins. 
 
-8) Ability to save the cropped tag locally to your server (future automatic labeling).
+8) Ability to save the cropped tag locally to your server (future automatic labeling). If you enable this feature, some manual steps may be needed.
+
+```code
+cd <YourPiwigoMugShotPluginDir>
+mkdir training
+sudo chown -R www-data:www-data training/
+sudo chmod 775 training/
+```
 
 ## Use
 MugShot works mostly the same as the original piwigo-facetag plugin. When activated, there will be a button that appears on the picture pages. The button looks like a man wearing a bowler hat. Click this button and then you can click and drag on the image to make a box around someones face. On mouseup, an input box will appear where you can type the persons name. As you type, a list of available names will appear once the number of possible matches is less than 10. You can click a name to select it or, if there is only one option, press enter. Pressing enter with the text input in focus will hide the tag but this is not necessary; Once you type the name you can immediately start selecting another face. Once you are finished, click the green "SAVE" button. To delete a tag, click the red "X" inside the tag bounding box, then click save. To modify a tag, double click the tag, edit the text, then click save. An FYI, the database trigger used in the old plugin is still there. Deleting tags will also delete the corresponding MugShot tag.
