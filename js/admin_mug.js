@@ -421,8 +421,15 @@ function beginCapture(e) {
       'height': 5,
       'width': 5,
     };
+
     MugShot.createBoundingBox(frame);
-    // MugShot.createBoundingBox(e.pageX - MugShot.offset.left, e.pageY - MugShot.offset.top, 5, 5);
+
+    // // Hide all the frames while we select the new one. Keeps them from interfering.
+    // MugShot.mugs.forEach(mug => {
+    //   mug.frame.el.style = 'hidden';
+    //   mug.name.el.style = 'hidden';
+    // });
+
     MugShot.mugs[MugShot.cfi].frame.el.classList.toggle('mugshot-active');
     MugShot.toggleSubmitBtn('on');
   }
