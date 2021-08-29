@@ -27,3 +27,7 @@ $lang['Save'] = 'Save';
 $lang['Groups'] = 'Groups';
 $lang['Type in a search term'] = 'Type in a search term';
 $lang['The following groups can use MugShot to tag people'] = 'The following groups can use MugShot to tag people';
+$lang['MugShot to crop tagged faces from photos'] = 'MugShot to crop tagged faces from photos';
+$lang['ALLOW'] = 'ALLOW';
+$lang['DO NOT ALLOW'] = 'DO NOT ALLOW';
+$lang['Maximum number of tags to load client side for auto complete functionality'] = 'Maximum number of tags to load client side for auto complete functionality';
