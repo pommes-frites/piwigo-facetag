@@ -414,6 +414,7 @@ function beginCapture(e) {
     MugShot.selecting = true;
     MugShot.img.addEventListener('mousemove', updateCapture);
     MugShot.img.addEventListener('mouseup', haltCapture);
+
     // left top height width
     var frame = {
       'lft': e.pageX - MugShot.offset.left,
@@ -424,13 +425,14 @@ function beginCapture(e) {
 
     MugShot.createBoundingBox(frame);
 
-    // // Hide all the frames while we select the new one. Keeps them from interfering.
-    // MugShot.mugs.forEach(mug => {
-    //   mug.frame.el.style = 'hidden';
-    //   mug.name.el.style = 'hidden';
-    // });
+    // Hide all the frames while we select the new one. Keeps them from interfering.
+    for (let index = 0; index < MugShot.mugs.length - 1; index++) {
+      MugShot.mugs[index].frame.el.classList.toggle('mugshot-hidden-while-selecting');
+      MugShot.mugs[index].name.el.classList.toggle('mugshot-hidden-while-selecting');
+    }
 
     MugShot.mugs[MugShot.cfi].frame.el.classList.toggle('mugshot-active');
+
     MugShot.toggleSubmitBtn('on');
   }
 }
@@ -448,6 +450,13 @@ function haltCapture(e) {
   MugShot.img.removeEventListener('mouseup', haltCapture, false);
   MugShot.mugs[MugShot.cfi].frame.el.ondblclick = updateBoundingBox;
   MugShot.mugs[MugShot.cfi].frame.el.classList.toggle('mugshot-mousetrap');
+
+  // Done capturing so re-show the other mugshot frames
+  for (let index = 0; index < MugShot.mugs.length - 1; index++) {
+    MugShot.mugs[index].frame.el.classList.toggle('mugshot-hidden-while-selecting');
+    MugShot.mugs[index].name.el.classList.toggle('mugshot-hidden-while-selecting');
+  }
+
   var pos = MugShot.setBoundingBoxPosition(e.pageX - MugShot.offset.left, e.pageY - MugShot.offset.top);
   MugShot.mugs[MugShot.cfi].frame.left = pos[0];
   MugShot.mugs[MugShot.cfi].frame.top = pos[1];
