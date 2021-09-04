@@ -88,7 +88,7 @@ $template -> assign(
  * Retrieve configuration variable.
  */
 if (empty($_POST)) {
-	$data = unserialize(conf_get_param(MUGSHOT_ID));
+	$data = conf_get_param(MUGSHOT_ID);
 } else {
 	$data = $_POST;
 }

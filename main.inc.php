@@ -1,15 +1,24 @@
 <?php
 /*
 Plugin Name: Mug Shot
-Version: 2.0.0
+Version: 2.0.2
 Description: Improved face tagging for Piwigo
-Plugin URI: http://piwigo.org/ext/extension_view.php?eid=867
-Author: cccraig
-Has Settings: true
+Plugin URI: http://piwigo.org/ext/extension_view.php?eid=910
+Author: ccraige90
+Has Settings: webmaster
 */
 
 if (!defined('PHPWG_ROOT_PATH')) die('Hacking attempt!');
 
+global $conf;
+
+if (!isset($conf['MugShot'])):
+  include(dirname(__FILE__).'/include/config_default.inc.php');
+  conf_update_param('MugShot', $config_default);
+  load_conf_from_db();
+endif;
+
+$conf['MugShot'] = unserialize($conf['MugShot']);
 
 /*
  * Plugin Constants
@@ -18,7 +27,7 @@ define('MUGSHOT_ID',      basename(dirname(__FILE__)));
 define('MUGSHOT_PATH' ,   PHPWG_PLUGINS_PATH . MUGSHOT_ID . '/');
 define('MUGSHOT_ADMIN',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
 define('MUGSHOT_BASE_URL',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
-define('MUGSHOT_VERSION', '2.0.0');
+define('MUGSHOT_VERSION', '2.0.2');
 define('MUGSHOT_TABLE', '`face_tag_positions`');
 
 
@@ -48,7 +57,7 @@ $current_user_groups = query_mugshot_groups();
 $intersect = array();
 
 if (count($current_user_groups) != 0) {
-  $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
+  $plugin_config = conf_get_param(MUGSHOT_ID);
 
   $group_list = $plugin_config['groups'] ?? array();
 

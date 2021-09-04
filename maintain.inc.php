@@ -51,7 +51,6 @@ class MugShot_maintain extends PluginMaintain
   function deactivate()
   {
     // Do nothing
-    create_tag_group();
   }
 
   function update($old_version, $new_version, &$errors=array())
@@ -71,5 +70,4 @@ class MugShot_maintain extends PluginMaintain
   {
     conf_delete_param('MugShot');
   }
-
 }

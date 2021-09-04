@@ -2,10 +2,21 @@
 
 if (!defined('PHPWG_ROOT_PATH')) die('Hacking attempt!');
 
+
 /*
  * Creates the tagging user group and associates the current user with that group;
  */
 function create_tag_group() {
+    global $conf;
+
+    if (!isset($conf['MugShot'])):
+      include(dirname(__FILE__).'/config_default.inc.php');
+      conf_update_param('MugShot', $config_default);
+      load_conf_from_db();
+    endif;
+
+    $conf['MugShot'] = unserialize($conf['MugShot']);
+
     // Checks to see if a taggers group exists.
     $checkTaggerGroupQuery = "SELECT id FROM " . GROUPS_TABLE . " WHERE name='Taggers'";
     
@@ -35,12 +46,14 @@ function create_tag_group() {
         pwg_query($makeUserAssociationQuery);
     }
 
-    // Updates mugshot configuration
-	$data = unserialize(conf_get_param(MUGSHOT_ID));
+    // Note that array_push returns the index of the new array item.
+    array_push($conf['MugShot']['groups'], $group_id);
 
-    $data['groups'] = array_unique(array_push($data['groups'], $group_id));
+    $conf['MugShot']['groups'] = array_unique($conf['MugShot']['groups']);
 
-    conf_update_param(MUGSHOT_ID, pwg_db_real_escape_string(serialize($data)));
+    conf_update_param(MUGSHOT_ID, $conf['MugShot']);
+
+    load_conf_from_db();
 }
 
 /*
