@@ -25,6 +25,7 @@ function create_tag_group() {
     if ($result == 0)
     {
       $makeTaggerGroupQuery = "INSERT INTO " . GROUPS_TABLE . ' (name) VALUES ("Taggers")';
+
       pwg_query($makeTaggerGroupQuery);
       
       $result = fetch_sql($checkTaggerGroupQuery, 'id', false);

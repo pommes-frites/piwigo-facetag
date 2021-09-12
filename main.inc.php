@@ -29,6 +29,7 @@ define('MUGSHOT_ADMIN',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID
 define('MUGSHOT_BASE_URL',   get_root_url() . 'admin.php?page=plugin-' . MUGSHOT_ID);
 define('MUGSHOT_VERSION', '2.0.2');
 define('MUGSHOT_TABLE', '`face_tag_positions`');
+define('MUGSHOT_QUEUE_TABLE', '`face_tag_queue`');
 
 
 /*
@@ -43,6 +44,7 @@ $ws_file = MUGSHOT_PATH . 'include/capture.php';
 add_event_handler('init', 'mugshot_lang_init');
 add_event_handler('loc_begin_page_header', 'mugshot_files', 40, 2);
 add_event_handler('loc_end_picture', 'mugshot_button');
+add_event_handler('loc_end_add_uploaded_file', 'mugshot_queue_for_processing');
 
 /*
  * Include custom helper functions
@@ -96,6 +98,30 @@ if (is_array($current_user_groups) && count($intersect) != 0) {
   define('MUGSHOT_USER_ADMIN', false);
 }
 
+/*
+ * Test to see if the upload fires as expected
+ */
+function create_facetag_tableb() {
+
+
+}
+
+function mugshot_queue_for_processing($image_info) {
+  $createTableQuery = 'CREATE TABLE IF NOT EXISTS `face_tag_queue` (
+    `image_id` mediumint(8) unsigned NOT NULL default "0",
+    `stuff` varchar(5000) NOT NULL default "0",
+    PRIMARY KEY (`image_id`)
+  )';
+
+  pwg_query($createTableQuery);
+
+  $item = serialize($image_info);
+  $id = $image_info['id'];
+
+  $insertImageQueueQuery = "INSERT INTO `face_tag_queue` (image_id, stuff) VALUES ('$id','$item')";
+
+  pwg_query($insertImageQueueQuery);
+}
 
 /*
  * Loads translations
@@ -244,7 +270,7 @@ function insert_tag_list() {
 
   global $template;
 
-  $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
+  $plugin_config = conf_get_param(MUGSHOT_ID);
 
   $max_tags = $plugin_config['max_tags'] ?? 500;
 

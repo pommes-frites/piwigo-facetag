@@ -42,7 +42,7 @@ function book_mugshots($data, &$service) {
   }
 
   $imageId = pwg_db_real_escape_string($data['imageId']);
-  $plugin_config = unserialize(conf_get_param(MUGSHOT_ID));
+  $plugin_config = conf_get_param(MUGSHOT_ID);
 
   unset($data['imageId']);
   $imageIdTagIdInsertionString = '';             // 
@@ -70,9 +70,9 @@ function book_mugshots($data, &$service) {
 
     // If it's a brand new tag, we won't have sent a tag ID back with the data.
     $newTagId = ($existingTagId == -1) ? tag_id_from_tag_name($labeledTagName) : $existingTagId;
-
+var_dump($plugin_config);
     // Create or remove the training thumbnails, depending on webmaster settings.
-    if ($plugin_config['autotag']) {
+    if ($plugin_config['autotag'] == '1') {
       $sql = "SELECT * FROM `". IMAGES_TABLE . "` WHERE `id`=".$imageId.";";
 
       $imgData = pwg_db_fetch_assoc(pwg_query($sql));
