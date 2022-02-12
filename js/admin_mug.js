@@ -296,6 +296,7 @@ var MugShot = {
     name.style.top = parseInt(mug.top) + parseInt(mug.height) + 'px';
     name.style.left = mug.el.style.left;
     name.style.width = mug.el.style.width;
+    name.autocomplete = false;
     document.getElementById(this.id2).append(name);
     this.mugs[this.cfi].name.el = name;
     this.mugs[this.cfi].frame.el.title = name.value;
